@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LearnPop! Academy — Playful Learning Universe</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { display: ['Fredoka','sans-serif'], body: ['Nunito','sans-serif'] },
+      colors: { popPink:'#FF2E93', popOrange:'#FF6B00', popYellow:'#FFC700', popPurple:'#7C3AED', popCyan:'#00E5FF', popLime:'#B6FF00', ink:'#141221' },
+      boxShadow: { brutal:'8px 8px 0 #141221', brutalSm:'5px 5px 0 #141221', brutalLg:'12px 12px 0 #141221' }
+    }
+  }
+}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  *{font-family:'Nunito',sans-serif}
+  h1,h2,h3,.font-display{font-family:'Fredoka',sans-serif !important}
+  body{background:#FFF8EC;color:#141221;overflow-x:hidden}
+  ::selection{background:#FF2E93;color:#fff}
+  ::-webkit-scrollbar{width:14px;height:14px}
+  ::-webkit-scrollbar-track{background:#FFF0D6}
+  ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#FF2E93,#FF6B00,#FFC700);border-radius:99px;border:3px solid #FFF0D6}
+  .mesh-bg{position:fixed;inset:0;z-index:-2;background:
+    radial-gradient(800px 500px at 10% 10%, #ffd1e8 0%, transparent 60%),
+    radial-gradient(900px 600px at 90% 15%, #c4f9ff 0%, transparent 60%),
+    radial-gradient(800px 600px at 20% 90%, #fff3b0 0%, transparent 60%),
+    radial-gradient(700px 500px at 90% 85%, #dccbff 0%, transparent 60%), #FFF8EC;}
+  .grain{position:fixed;inset:0;z-index:-1;opacity:.06;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+  .blob{position:absolute;border-radius:9999px;filter:blur(60px);opacity:.55;animation:drift 12s ease-in-out infinite alternate}
+  @keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,-40px) scale(1.15)}}
+  @keyframes floaty{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-16px) rotate(2deg)}}
+  @keyframes wiggle{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+  @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+  @keyframes spinSlow{to{transform:rotate(360deg)}}
+  @keyframes popIn{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+  .animate-floaty{animation:floaty 5s ease-in-out infinite}
+  .animate-wiggle{animation:wiggle 3s ease-in-out infinite}
+  .marquee-track{display:flex;width:max-content;animation:marquee 22s linear infinite}
+  .btn-pop{border:3px solid #141221;box-shadow:5px 5px 0 #141221;transition:.18s;font-weight:900}
+  .btn-pop:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #141221}
+  .btn-pop:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #141221}
+  .card-pop{border:3px solid #141221;box-shadow:8px 8px 0 #141221;transition:.22s}
+  .card-pop:hover{transform:translateY(-8px) rotate(-.6deg);box-shadow:12px 12px 0 #141221}
+  .sticker{border:3px solid #141221;box-shadow:4px 4px 0 #141221}
+  .pill-active{transform:scale(1.05)}
+  .tab-btn{border:3px solid #141221;transition:.2s}
+  .tab-active{background:#141221 !important;color:#fff !important;box-shadow:4px 4px 0 #FF2E93 !important}
+  .input-pop{border:3px solid #141221;border-radius:1rem;padding:.7rem 1rem;background:#fff;font-weight:700;width:100%;outline:none;transition:.2s}
+  .input-pop:focus{box-shadow:4px 4px 0 #FF2E93;transform:translate(-1px,-1px)}
+  select.input-pop, input[type=color].input-pop{cursor:pointer}
+  .quiz-opt{border:3px solid #141221;transition:.18s;cursor:pointer}
+  .quiz-opt:hover{transform:translateX(6px)}
+  .quiz-opt.correct{background:#B6FF00 !important;border-color:#141221}
+  .quiz-opt.wrong{background:#FF5A5A !important;color:#fff !important}
+  .flashcard{perspective:1200px}
+  .flash-inner{transition:transform .6s cubic-bezier(.34,1.56,.64,1);transform-style:preserve-3d;position:relative}
+  .flashcard.flipped .flash-inner{transform:rotateY(180deg)}
+  .flash-face{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+  .flash-back{transform:rotateY(180deg);position:absolute;inset:0}
+  .wavy{line-height:0}
+  .lesson-img{height:190px;object-fit:cover;width:100%}
+  .modal-bg{background:rgba(20,18,33,.65);backdrop-filter:blur(8px)}
+  .confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:9999}
+  .range-pop{-webkit-appearance:none;width:100%;height:12px;border-radius:99px;border:3px solid #141221;outline:none}
+  .range-pop::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:99px;background:#FF2E93;border:3px solid #141221;box-shadow:3px 3px 0 #141221;cursor:pointer}
+  .range-pop.cyan::-webkit-slider-thumb{background:#00E5FF}
+  .range-pop.yellow::-webkit-slider-thumb{background:#FFC700}
+  .range-pop.purple::-webkit-slider-thumb{background:#7C3AED}
+  .toast{animation:popIn .35s cubic-bezier(.34,1.56,.64,1)}
+  .timer-bar{transition:width 1s linear}
+  .bubble-pop{cursor:pointer;transition:.15s;user-select:none}
+  .bubble-pop:hover{transform:scale(1.12)}
+  .bubble-pop:active{transform:scale(.9)}
+  details>summary{list-style:none;cursor:pointer}
+  details>summary::-webkit-details-marker{display:none}
+  .shiny{position:relative;overflow:hidden}
+  .shiny:after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);transform:skewX(-20deg);animation:shine 3.5s infinite}
+  @keyframes shine{0%{left:-60%}60%,100%{left:130%}}
+  @media(max-width:768px){.card-pop{box-shadow:5px 5px 0 #141221}}
+</style>
+</head>
+<body class="font-body">
+<div class="mesh-bg"></div><div class="grain"></div>
+
+<!-- ANNOUNCEMENT -->
+<div class="bg-ink text-white overflow-hidden py-2 border-b-4 border-ink relative z-40">
+  <div class="marquee-track gap-8 text-[13px] font-black tracking-wide whitespace-nowrap">
+    <span class="flex gap-8 pr-8" id="marqueeA"></span>
+    <span class="flex gap-8 pr-8" id="marqueeB"></span>
+  </div>
+</div>
+
+<!-- NAV -->
+<header class="sticky top-0 z-50">
+<nav class="mx-3 md:mx-6 mt-3 rounded-2xl bg-white/85 backdrop-blur-xl border-[3px] border-ink shadow-brutSm flex items-center justify-between px-4 md:px-6 py-3">
+  <a href="#home" class="flex items-center gap-3">
+    <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-popPink via-popOrange to-popYellow border-[3px] border-ink flex items-center justify-center shadow-[3px_3px_0_#141221] rotate-[-6deg]">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9L12 2Z" fill="white" stroke="#141221" stroke-width="1.5" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="leading-none">
+      <div class="font-display font-bold text-xl md:text-2xl tracking-tight">LearnPop<span class="text-popPink">!</span></div>
+      <div class="text-[11px] font-black tracking-[.2em] text-ink/60">ACADEMY • PLAY & LEARN</div>
+    </div>
+  </a>
+  <div class="hidden lg:flex items-center gap-1 font-extrabold text-[15px]">
+    <a href="#levels" class="px-4 py-2 rounded-full hover:bg-popYellow transition">Levels</a>
+    <a href="#library" class="px-4 py-2 rounded-full hover:bg-popCyan transition">Library</a>
+    <a href="#lab" class="px-4 py-2 rounded-full hover:bg-popLime transition">Animation Lab</a>
+    <a href="#quizzes" class="px-4 py-2 rounded-full hover:bg-[#FFB3D9] transition">Quizzes</a>
+    <a href="#progress" class="px-4 py-2 rounded-full hover:bg-[#DCCBFF] transition">Progress</a>
+  </div>
+  <div class="flex items-center gap-2">
+    <div class="hidden md:flex items-center gap-2 bg-ink text-white rounded-full pl-2 pr-4 py-1 border-[3px] border-ink">
+      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-popYellow to-popOrange flex items-center justify-center font-display font-bold text-ink" id="navLevel">1</div>
+      <div class="leading-none"><div class="text-[11px] font-black text-popYellow" id="navXP">0 XP</div><div class="text-[11px] font-bold opacity-80" id="navTitle">Sprout</div></div>
+    </div>
+    <a href="#studio" class="btn-pop shiny hidden sm:inline-flex items-center gap-2 bg-gradient-to-r from-popPink to-popOrange text-white rounded-full px-5 py-2.5 text-sm">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg> ADD LESSON
+    </a>
+    <button id="menuBtn" class="lg:hidden w-10 h-10 rounded-xl border-[3px] border-ink bg-popYellow btn-pop flex items-center justify-center">☰</button>
+  </div>
+</nav>
+<div id="mobileMenu" class="hidden mx-3 mt-2 rounded-2xl bg-white border-[3px] border-ink shadow-brutSm p-3 font-extrabold lg:hidden">
+  <a href="#levels" class="block px-4 py-3 rounded-xl hover:bg-popYellow">Levels</a>
+  <a href="#library" class="block px-4 py-3 rounded-xl hover:bg-popCyan">Library</a>
+  <a href="#lab" class="block px-4 py-3 rounded-xl hover:bg-popLime">Animation Lab</a>
+  <a href="#quizzes" class="block px-4 py-3 rounded-xl hover:bg-pink-200">Quizzes</a>
+  <a href="#studio" class="block px-4 py-3 rounded-xl bg-ink text-white mt-1 text-center">+ ADD LESSON</a>
+</div>
+</header>
+
+<!-- HERO -->
+<section id="home" class="relative max-w-7xl mx-auto px-4 md:px-6 pt-8 md:pt-12 pb-6">
+  <div class="blob w-[380px] h-[380px] bg-popPink/60 -left-20 top-10"></div>
+  <div class="blob w-[320px] h-[320px] bg-popCyan/60 right-0 top-40" style="animation-delay:-4s"></div>
+  <div class="grid lg:grid-cols-2 gap-8 items-center">
+    <div class="relative z-10">
+      <div class="inline-flex items-center gap-2 flex-wrap mb-4">
+        <span class="sticker bg-popLime rounded-full px-4 py-1.5 text-xs font-black rotate-[-3deg]">✦ 100% FREE FOREVER</span>
+        <span class="sticker bg-white rounded-full px-4 py-1.5 text-xs font-black rotate-[2deg]">✦ MATH • HISTORY • SCIENCE • MORE</span>
+        <span class="sticker bg-popCyan rounded-full px-4 py-1.5 text-xs font-black rotate-[-1deg]">✦ ADD YOUR OWN LESSONS ANYTIME</span>
+      </div>
+      <h1 class="font-display font-bold text-[42px] md:text-[68px] leading-[.95] tracking-tight">
+        Learn it.<br>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-popPink via-popOrange to-popPurple">Pop it.</span><br>
+        Own it.
+      </h1>
+      <p class="mt-4 text-lg md:text-xl font-bold text-ink/70 max-w-xl">The high-energy learning universe where every level gets <span class="bg-popYellow px-2 rounded-lg border-2 border-ink">videos</span>, <span class="bg-popCyan px-2 rounded-lg border-2 border-ink">animations</span>, files & <span class="bg-popLime px-2 rounded-lg border-2 border-ink">quizzes</span>. Teachers can add & update lessons anytime — students play their way to genius.</p>
+      <div class="mt-6 flex flex-col sm:flex-row gap-3">
+        <div class="flex-1 flex items-center bg-white border-[3px] border-ink rounded-full shadow-brutSm overflow-hidden pl-5">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#141221" stroke-width="3"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input id="heroSearch" placeholder="Search fractions, pyramids, space..." class="w-full px-3 py-3.5 font-bold outline-none bg-transparent">
+          <button onclick="heroGo()" class="m-1.5 bg-ink text-white rounded-full px-6 py-2.5 font-black text-sm hover:bg-popPink transition whitespace-nowrap">SEARCH</button>
+        </div>
+      </div>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a href="#library" class="btn-pop bg-gradient-to-r from-popPurple to-popPink text-white rounded-full px-7 py-3.5">START LEARNING →</a>
+        <a href="#lab" class="btn-pop bg-white rounded-full px-7 py-3.5">TRY ANIMATION LAB</a>
+      </div>
+      <div class="mt-7 grid grid-cols-4 gap-3 max-w-lg">
+        <div class="bg-white border-[3px] border-ink rounded-2xl p-3 text-center shadow-[4px_4px_0_#141221]"><div class="font-display font-bold text-2xl" id="statLessons">12</div><div class="text-[11px] font-black opacity-60">LESSONS</div></div>
+        <div class="bg-white border-[3px] border-ink rounded-2xl p-3 text-center shadow-[4px_4px_0_#141221]"><div class="font-display font-bold text-2xl" id="statQuizzes">48</div><div class="text-[11px] font-black opacity-60">QUIZ Qs</div></div>
+        <div class="bg-white border-[3px] border-ink rounded-2xl p-3 text-center shadow-[4px_4px_0_#141221]"><div class="font-display font-bold text-2xl">6</div><div class="text-[11px] font-black opacity-60">SUBJECTS</div></div>
+        <div class="bg-white border-[3px] border-ink rounded-2xl p-3 text-center shadow-[4px_4px_0_#141221]"><div class="font-display font-bold text-2xl text-popPink" id="statStreak">1🔥</div><div class="text-[11px] font-black opacity-60">STREAK</div></div>
+      </div>
+    </div>
+    <div class="relative">
+      <div class="absolute inset-0 bg-gradient-to-br from-popPink via-popOrange to-popPurple rounded-[2.5rem] rotate-[4deg] border-[3px] border-ink"></div>
+      <div class="relative bg-white rounded-[2.5rem] border-[3px] border-ink overflow-hidden shadow-brutLg rotate-[-1deg]">
+        <div class="bg-ink text-white px-5 py-3 flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-[#FF5F57] border border-black"></span><span class="w-3 h-3 rounded-full bg-popYellow border border-black"></span><span class="w-3 h-3 rounded-full bg-popLime border border-black"></span>
+          <span class="ml-2 text-xs font-black tracking-widest opacity-70">● NOW PLAYING: FRACTIONS ARE FUN!</span>
+        </div>
+        <div class="relative">
+          <img src="https://images.unsplash.com/photo-1509228468518-180dd4864904?w=900&q=80" class="w-full h-64 md:h-72 object-cover" alt="lesson">
+          <div class="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent"></div>
+          <button onclick="openLesson(featuredId())" class="absolute inset-0 m-auto w-20 h-20 rounded-full bg-popYellow border-4 border-ink shadow-brut flex items-center justify-center animate-floaty hover:scale-110 transition">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="#141221"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <div class="absolute bottom-3 left-4 right-4 flex items-end justify-between">
+            <div class="text-white"><div class="font-display font-bold text-xl drop-shadow">Fractions Are Fun!</div><div class="text-xs font-bold opacity-90">Math • Explorer • 12 min</div></div>
+            <div class="bg-white text-ink text-xs font-black px-3 py-1.5 rounded-full border-2 border-ink">▶ 24K plays</div>
+          </div>
+        </div>
+        <div class="p-5 grid grid-cols-3 gap-3">
+          <div class="rounded-2xl border-[3px] border-ink bg-gradient-to-br from-pink-400 to-popPink text-white p-3 text-center rotate-[-2deg]"><div class="text-2xl font-display font-bold">∑</div><div class="text-[11px] font-black">MATH POP</div></div>
+          <div class="rounded-2xl border-[3px] border-ink bg-gradient-to-br from-amber-300 to-popOrange text-white p-3 text-center rotate-[2deg]"><div class="text-2xl font-display font-bold">◷</div><div class="text-[11px] font-black">TIME TRAVEL</div></div>
+          <div class="rounded-2xl border-[3px] border-ink bg-gradient-to-br from-cyan-300 to-blue-600 text-white p-3 text-center rotate-[-2deg]"><div class="text-2xl font-display font-bold">✦</div><div class="text-[11px] font-black">SCIENCE LAB</div></div>
+        </div>
+      </div>
+      <div class="absolute -left-4 top-8 sticker bg-popLime rounded-2xl px-4 py-2 font-black text-sm rotate-[-10deg] animate-wiggle">+50 XP!</div>
+      <div class="absolute -right-3 bottom-24 sticker bg-white rounded-2xl px-4 py-2 font-black text-sm rotate-[8deg] animate-floaty">A+ Quiz Streak!</div>
+    </div>
+  </div>
+  <div class="mt-8 bg-ink text-white rounded-2xl border-[3px] border-ink shadow-brut overflow-hidden py-3">
+    <div class="marquee-track font-display font-bold text-lg gap-10" id="subjectMarquee"></div>
+  </div>
+</section>
+
+<!-- LEVELS -->
+<section id="levels" class="max-w-7xl mx-auto px-4 md:px-6 py-10">
+  <div class="flex items-end justify-between flex-wrap gap-3 mb-6">
+    <div><div class="sticker inline-block bg-popOrange text-white rounded-full px-4 py-1 text-xs font-black mb-2">CHOOSE YOUR STAGE</div>
+    <h2 class="font-display font-bold text-3xl md:text-5xl">Pick your level, hero!</h2></div>
+    <p class="font-bold text-ink/60 max-w-md">Every lesson is tagged to a level. Filter instantly, or add your own lessons to any level anytime in the Studio.</p>
+  </div>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5" id="levelGrid"></div>
+</section>
+
+<div class="wavy"><svg viewBox="0 0 1440 80" preserveAspectRatio="none" class="w-full h-[50px]"><path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z" fill="#141221"/></svg></div>
+
+<!-- LIBRARY -->
+<section id="library" class="bg-ink text-white py-12 border-y-4 border-ink relative overflow-hidden">
+  <div class="blob w-[400px] h-[400px] bg-popPink/40 left-10 top-10"></div>
+  <div class="blob w-[350px] h-[350px] bg-popCyan/30 right-10 bottom-10"></div>
+  <div class="max-w-7xl mx-auto px-4 md:px-6 relative">
+    <div class="flex flex-wrap items-end justify-between gap-4 mb-6">
+      <div><div class="sticker inline-block bg-popYellow text-ink rounded-full px-4 py-1 text-xs font-black mb-2">THE VAULT • UPDATES ANYTIME</div>
+      <h2 class="font-display font-bold text-3xl md:text-5xl">Lesson Library</h2>
+      <p class="font-bold text-white/60 mt-1">Videos • Animations • Files • Interactive training • Quizzes</p></div>
+      <a href="#studio" class="btn-pop bg-popLime text-ink rounded-full px-6 py-3 text-sm">+ ADD NEW LESSON</a>
+    </div>
+    <div class="bg-white text-ink rounded-[1.8rem] border-[3px] border-white p-4 md:p-5 shadow-[8px_8px_0_#FF2E93]">
+      <div class="flex flex-col lg:flex-row gap-3">
+        <div class="flex-1 flex items-center bg-[#FFF3D6] border-[3px] border-ink rounded-full px-5">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#141221" stroke-width="3"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input id="searchInput" placeholder="Search lessons, topics, keywords..." class="bg-transparent w-full px-3 py-3 font-bold outline-none">
+        </div>
+        <select id="typeFilter" class="input-pop !w-auto font-black"><option value="All">All Types</option><option>Video</option><option>Animation</option><option>Interactive</option><option>Document</option><option>Quiz Pack</option></select>
+        <select id="sortFilter" class="input-pop !w-auto font-black"><option value="new">Newest first</option><option value="az">A → Z</option><option value="quiz">Most quizzes</option><option value="short">Quickest</option></select>
+      </div>
+      <div class="mt-4">
+        <div class="text-xs font-black tracking-widest opacity-60 mb-2">SUBJECTS</div>
+        <div class="flex flex-wrap gap-2" id="subjectPills"></div>
+      </div>
+      <div class="mt-3">
+        <div class="text-xs font-black tracking-widest opacity-60 mb-2">LEVELS</div>
+        <div class="flex flex-wrap gap-2" id="levelPills"></div>
+      </div>
+    </div>
+    <div class="mt-4 flex items-center justify-between font-bold text-white/70 text-sm"><span id="resultCount"></span><button onclick="resetFilters()" class="underline hover:text-popYellow">Reset filters</button></div>
+    <div class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="lessonGrid"></div>
+  </div>
+</section>
+
+<!-- LAB -->
+<section id="lab" class="max-w-7xl mx-auto px-4 md:px-6 py-14">
+  <div class="text-center max-w-2xl mx-auto mb-10">
+    <span class="sticker inline-block bg-popPurple text-white rounded-full px-5 py-1.5 text-xs font-black rotate-[-2deg]">INTERACTIVE • NO BORING LECTURES</span>
+    <h2 class="font-display font-bold text-4xl md:text-6xl mt-3">Animation <span class="text-transparent bg-clip-text bg-gradient-to-r from-popPink to-popOrange">Lab</span></h2>
+    <p class="font-bold text-ink/60 mt-2 text-lg">Touch it. Drag it. Break it. These living animations make math move and history breathe.</p>
+  </div>
+  <div class="grid lg:grid-cols-2 gap-6">
+    <!-- Fraction -->
+    <div class="card-pop bg-white rounded-[2rem] overflow-hidden">
+      <div class="bg-gradient-to-r from-popPink to-popOrange text-white px-6 py-4 flex items-center justify-between border-b-[3px] border-ink"><h3 class="font-display font-bold text-xl">🍰 Fractions Frenzy</h3><span class="sticker bg-white text-ink text-xs font-black rounded-full px-3 py-1">MATH</span></div>
+      <div class="p-6">
+        <div class="flex items-center justify-center"><canvas id="fracCanvas" width="260" height="260" class="max-w-full"></canvas></div>
+        <div class="grid grid-cols-2 gap-4 mt-4">
+          <div><label class="font-black text-sm">NUMERATOR: <span id="numVal" class="bg-popPink text-white px-2 rounded-lg">3</span></label><input id="numSlider" type="range" min="1" max="12" value="3" class="range-pop mt-2"></div>
+          <div><label class="font-black text-sm">DENOMINATOR: <span id="denVal" class="bg-popPurple text-white px-2 rounded-lg">4</span></label><input id="denSlider" type="range" min="2" max="12" value="4" class="range-pop purple mt-2"></div>
+        </div>
+        <div class="mt-4 bg-[#FFF3D6] border-[3px] border-ink rounded-2xl p-4 font-black text-center text-lg" id="fracLabel">3/4 = 0.75 = 75%</div>
+        <div class="mt-3 h-5 rounded-full border-[3px] border-ink overflow-hidden bg-white"><div id="fracBar" class="h-full bg-gradient-to-r from-popPink to-popYellow transition-all" style="width:75%"></div></div>
+      </div>
+    </div>
+    <!-- Wave -->
+    <div class="card-pop bg-white rounded-[2rem] overflow-hidden">
+      <div class="bg-gradient-to-r from-popPurple to-blue-600 text-white px-6 py-4 flex items-center justify-between border-b-[3px] border-ink"><h3 class="font-display font-bold text-xl">〰️ Wave & Motion Lab</h3><span class="sticker bg-popCyan text-ink text-xs font-black rounded-full px-3 py-1">PHYSICS</span></div>
+      <div class="p-6">
+        <canvas id="waveCanvas" width="520" height="220" class="w-full rounded-2xl border-[3px] border-ink bg-ink"></canvas>
+        <div class="grid grid-cols-3 gap-3 mt-4">
+          <div><label class="font-black text-xs">FREQUENCY</label><input id="freqSlider" type="range" min="1" max="10" value="3" class="range-pop cyan mt-1"></div>
+          <div><label class="font-black text-xs">AMPLITUDE</label><input id="ampSlider" type="range" min="10" max="80" value="50" class="range-pop yellow mt-1"></div>
+          <div><label class="font-black text-xs">SPEED</label><input id="speedSlider" type="range" min="1" max="10" value="4" class="range-pop mt-1"></div>
+        </div>
+        <p class="mt-3 text-sm font-bold text-ink/60">Waves carry sound & light! Crank frequency to see pitch rise — just like a guitar string.</p>
+      </div>
+    </div>
+    <!-- History -->
+    <div class="card-pop bg-white rounded-[2rem] overflow-hidden">
+      <div class="bg-gradient-to-r from-amber-400 to-popOrange text-white px-6 py-4 flex items-center justify-between border-b-[3px] border-ink"><h3 class="font-display font-bold text-xl">◷ History Time Machine</h3><span class="sticker bg-popYellow text-ink text-xs font-black rounded-full px-3 py-1">HISTORY</span></div>
+      <div class="p-6">
+        <div class="rounded-2xl overflow-hidden border-[3px] border-ink relative">
+          <img id="timeImg" src="https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800&q=80" class="w-full h-52 object-cover" alt="era">
+          <div class="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/10 to-transparent"></div>
+          <div class="absolute bottom-0 p-4 text-white"><div id="timeYear" class="font-display font-bold text-2xl text-popYellow">2600 BC</div><div id="timeTitle" class="font-black">Pyramids Rise in Egypt</div><div id="timeDesc" class="text-sm font-bold opacity-80">Pharaohs build giant tombs that still stand today.</div></div>
+        </div>
+        <input id="timeSlider" type="range" min="0" max="7" value="0" class="range-pop yellow mt-5">
+        <div class="flex justify-between text-[11px] font-black opacity-60 mt-1"><span>3000 BC</span><span>ROME</span><span>1492</span><span>NOW</span></div>
+        <div class="flex gap-2 mt-4"><button onclick="timeStep(-1)" class="btn-pop flex-1 bg-white rounded-full py-2 text-sm">← BACK</button><button onclick="timeStep(1)" class="btn-pop flex-1 bg-ink text-white rounded-full py-2 text-sm">FORWARD →</button></div>
+      </div>
+    </div>
+    <!-- Sprint -->
+    <div class="card-pop rounded-[2rem] overflow-hidden bg-gradient-to-br from-ink to-[#2A2140] text-white border-[3px] border-ink">
+      <div class="px-6 py-4 flex items-center justify-between border-b-[3px] border-white/20"><h3 class="font-display font-bold text-xl">⚡ Math Sprint Training</h3><span class="sticker bg-popLime text-ink text-xs font-black rounded-full px-3 py-1">60 SEC</span></div>
+      <div class="p-6 text-center">
+        <div id="sprintSetup">
+          <div class="font-display font-bold text-5xl mb-2">Ready?</div>
+          <p class="font-bold text-white/60 mb-4">Pop as many correct answers as you can in 60 seconds. +10 XP per hit!</p>
+          <button onclick="startSprint()" class="btn-pop bg-popLime text-ink rounded-full px-8 py-3">START SPRINT →</button>
+        </div>
+        <div id="sprintPlay" class="hidden">
+          <div class="flex justify-between font-black text-sm mb-3"><span class="bg-white/10 rounded-full px-4 py-1">⏱ <span id="sprintTime">60</span>s</span><span class="bg-popLime text-ink rounded-full px-4 py-1">SCORE: <span id="sprintScore">0</span></span></div>
+          <div class="bg-white text-ink rounded-2xl border-[3px] border-white p-5 font-display font-bold text-4xl" id="sprintQ">7 × 8 = ?</div>
+          <div class="grid grid-cols-2 gap-3 mt-4" id="sprintOpts"></div>
+        </div>
+        <div id="sprintEnd" class="hidden">
+          <div class="font-display font-bold text-5xl text-popYellow" id="sprintFinal">0</div>
+          <div class="font-black text-white/70 mb-4">AMAZING HUSTLE!</div>
+          <button onclick="startSprint()" class="btn-pop bg-white text-ink rounded-full px-8 py-3 text-sm">PLAY AGAIN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZZES -->
+<section id="quizzes" class="bg-gradient-to-br from-[#FFE7F3] via-[#FFF6D6] to-[#D8FBFF] py-14 border-y-4 border-ink">
+  <div class="max-w-7xl mx-auto px-4 md:px-6">
+    <div class="flex flex-wrap items-end justify-between gap-4 mb-8">
+      <div><span class="sticker inline-block bg-ink text-white rounded-full px-4 py-1 text-xs font-black">TRAINING • QUIZZES • REWARDS</span>
+      <h2 class="font-display font-bold text-4xl md:text-5xl mt-2">Quiz Arena</h2></div>
+      <div class="flex gap-2 flex-wrap">
+        <button onclick="startMixed('all','Ultimate Mix')" class="btn-pop bg-gradient-to-r from-popPink to-popOrange text-white rounded-full px-6 py-3 text-sm shiny">⦿ ULTIMATE MIX (10 Qs)</button>
+        <button onclick="startMixed('Math','Math Marathon')" class="btn-pop bg-white rounded-full px-6 py-3 text-sm">∑ MATH MARATHON</button>
+        <button onclick="startMixed('History','History Quest')" class="btn-pop bg-white rounded-full px-6 py-3 text-sm">◷ HISTORY QUEST</button>
+      </div>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" id="quizGrid"></div>
+  </div>
+</section>
+
+<!-- STUDIO -->
+<section id="studio" class="max-w-7xl mx-auto px-4 md:px-6 py-14">
+  <div class="rounded-[2.5rem] border-[3px] border-ink shadow-brutLg overflow-hidden bg-white">
+    <div class="bg-gradient-to-r from-popPink via-popOrange to-popYellow px-6 md:px-10 py-8 text-white border-b-[3px] border-ink relative overflow-hidden">
+      <div class="absolute w-64 h-64 bg-white/20 rounded-full -right-10 -top-10 blur-2xl"></div>
+      <span class="sticker inline-block bg-ink text-white rounded-full px-4 py-1 text-xs font-black">TEACHER STUDIO • ADD & UPDATE ANYTIME</span>
+      <h2 class="font-display font-bold text-3xl md:text-5xl mt-2 drop-shadow">Create a lesson in 60 seconds</h2>
+      <p class="font-bold text-white/90 mt-1 max-w-2xl">Add videos, animations, files, rich content & auto-graded quizzes to any level & subject. Everything saves instantly and appears in the Library.</p>
+    </div>
+    <div class="grid lg:grid-cols-5 gap-0">
+      <form id="lessonForm" class="lg:col-span-3 p-6 md:p-8 space-y-4 bg-[#FFFDF5]">
+        <input type="hidden" id="fId">
+        <div><label class="font-black text-sm">LESSON TITLE *</label><input id="fTitle" required class="input-pop mt-1" placeholder="e.g. Fractions Are Fun!"></div>
+        <div class="grid sm:grid-cols-3 gap-3">
+          <div><label class="font-black text-sm">LEVEL *</label><select id="fLevel" class="input-pop mt-1"><option>Explorer</option><option>Voyager</option><option>Pioneer</option><option>Titan</option></select></div>
+          <div><label class="font-black text-sm">SUBJECT *</label><select id="fSubject" class="input-pop mt-1"><option>Math</option><option>History</option><option>Science</option><option>English</option><option>Geography</option><option>Art</option></select></div>
+          <div><label class="font-black text-sm">TYPE *</label><select id="fType" class="input-pop mt-1"><option>Video</option><option>Animation</option><option>Interactive</option><option>Document</option><option>Quiz Pack</option></select></div>
+        </div>
+        <div class="grid sm:grid-cols-3 gap-3">
+          <div><label class="font-black text-sm">DURATION</label><input id="fDuration" class="input-pop mt-1" placeholder="12 min"></div>
+          <div><label class="font-black text-sm">DIFFICULTY</label><select id="fDifficulty" class="input-pop mt-1"><option>Easy</option><option>Medium</option><option>Hard</option></select></div>
+          <div><label class="font-black text-sm">COVER COLOR</label><input id="fColor" type="color" value="#FF2E93" class="input-pop mt-1 !p-1 h-[52px]"></div>
+        </div>
+        <div><label class="font-black text-sm">VIDEO URL (YouTube / MP4 — optional)</label><input id="fVideo" class="input-pop mt-1" placeholder="https://www.youtube.com/watch?v=..."></div>
+        <div><label class="font-black text-sm">COVER IMAGE URL (optional)</label><input id="fImg" class="input-pop mt-1" placeholder="https://..."></div>
+        <div><label class="font-black text-sm">DESCRIPTION *</label><textarea id="fDesc" required rows="2" class="input-pop mt-1" placeholder="One juicy sentence that makes kids click!"></textarea></div>
+        <div><label class="font-black text-sm">LESSON CONTENT (key points, steps, story...)</label><textarea id="fContent" rows="4" class="input-pop mt-1" placeholder="Write each key idea on a new line. Supports simple formatting."></textarea></div>
+        <div class="bg-white border-[3px] border-dashed border-ink/30 rounded-2xl p-4">
+          <label class="font-black text-sm">📎 ATTACH FILES (PDF, worksheets, slides — stored in browser)</label>
+          <input id="fFiles" type="file" multiple class="mt-2 text-sm font-bold">
+          <div id="fileList" class="mt-2 space-y-1 text-sm font-bold"></div>
+          <div><label class="font-black text-sm mt-3 block">OR ADD RESOURCE LINKS (one per line: Name | URL)</label><textarea id="fLinks" rows="2" class="input-pop mt-1" placeholder="Worksheet | https://..."></textarea></div>
+        </div>
+        <div class="bg-ink text-white rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3"><span class="font-display font-bold text-lg">Quiz Builder</span><button type="button" onclick="addQuizBlock()" class="btn-pop bg-popLime text-ink rounded-full px-4 py-1.5 text-xs">+ ADD QUESTION</button></div>
+          <div id="quizBuilder" class="space-y-3"></div>
+        </div>
+        <div class="flex flex-wrap gap-3 pt-2">
+          <button type="submit" class="btn-pop flex-1 min-w-[200px] bg-gradient-to-r from-popPink to-popOrange text-white rounded-full py-3.5">🚀 PUBLISH LESSON</button>
+          <button type="button" onclick="resetForm()" class="btn-pop bg-white rounded-full px-6 py-3.5 text-sm">CLEAR</button>
+        </div>
+      </form>
+      <div class="lg:col-span-2 bg-ink text-white p-6 md:p-8 border-t-[3px] lg:border-t-0 lg:border-l-[3px] border-ink">
+        <div class="text-xs font-black tracking-widest text-white/50">LIVE PREVIEW</div>
+        <div class="mt-3 bg-white text-ink rounded-[1.5rem] overflow-hidden border-[3px] border-white" id="livePreview"></div>
+        <div class="mt-5 bg-white/10 rounded-2xl p-4 text-sm font-bold space-y-2">
+          <div class="font-display font-bold text-popYellow">STUDIO TIPS</div>
+          <div>✦ Pick the right <b>Level</b> — it auto-sorts into learner paths.</div>
+          <div>✦ Paste any <b>YouTube</b> link — we embed it beautifully.</div>
+          <div>✦ Add <b>3–5 quiz questions</b> for max XP rewards.</div>
+          <div>✦ Attach <b>files</b> — kids can download them in the lesson.</div>
+        </div>
+        <div class="mt-4 grid grid-cols-3 gap-2">
+          <button onclick="exportData()" class="bg-white/10 hover:bg-white/20 rounded-xl py-2.5 text-xs font-black border border-white/20">⬇ EXPORT</button>
+          <button onclick="document.getElementById('importFile').click()" class="bg-white/10 hover:bg-white/20 rounded-xl py-2.5 text-xs font-black border border-white/20">⬆ IMPORT</button>
+          <button onclick="resetDemo()" class="bg-[#FF5A5A]/20 hover:bg-[#FF5A5A]/40 rounded-xl py-2.5 text-xs font-black border border-white/20">↺ RESET</button>
+          <input id="importFile" type="file" accept=".json" class="hidden">
+        </div>
+      </div>
+    </div>
+    <div class="p-6 md:p-8 bg-[#FFF3D6] border-t-[3px] border-ink">
+      <h3 class="font-display font-bold text-2xl mb-1">Manage all lessons</h3>
+      <p class="font-bold text-ink/60 text-sm mb-4">Edit, duplicate or delete anything anytime. Changes go live instantly.</p>
+      <div class="overflow-x-auto rounded-2xl border-[3px] border-ink bg-white"><table class="w-full text-sm font-bold min-w-[700px]">
+        <thead><tr class="bg-ink text-white text-left"><th class="p-3">Lesson</th><th class="p-3">Level</th><th class="p-3">Subject</th><th class="p-3">Quiz</th><th class="p-3 text-right">Actions</th></tr></thead>
+        <tbody id="manageBody"></tbody>
+      </table></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROGRESS -->
+<section id="progress" class="max-w-7xl mx-auto px-4 md:px-6 pb-16">
+  <div class="grid lg:grid-cols-3 gap-6">
+    <div class="card-pop bg-gradient-to-br from-popPurple to-ink text-white rounded-[2rem] p-7">
+      <div class="text-xs font-black tracking-widest opacity-60">MY HERO PROFILE</div>
+      <div class="flex items-center gap-4 mt-3">
+        <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-popYellow to-popPink border-[3px] border-white flex items-center justify-center font-display font-bold text-4xl text-ink rotate-[-4deg]" id="avatarLetter">S</div>
+        <div><div class="font-display font-bold text-2xl" id="xpLevelName">Level 1 • Sprout</div><div class="font-black text-popYellow" id="xpTotal">0 XP</div></div>
+      </div>
+      <div class="mt-4 h-4 rounded-full border-2 border-white/40 bg-white/10 overflow-hidden"><div id="xpBar" class="h-full bg-gradient-to-r from-popYellow via-popOrange to-popPink transition-all" style="width:5%"></div></div>
+      <div class="text-xs font-bold opacity-70 mt-1" id="xpNext">45 XP to Level 2</div>
+      <div class="grid grid-cols-3 gap-2 mt-5 text-center">
+        <div class="bg-white/10 rounded-2xl p-3 border border-white/20"><div class="font-display font-bold text-xl" id="dashDone">0</div><div class="text-[10px] font-black opacity-60">DONE</div></div>
+        <div class="bg-white/10 rounded-2xl p-3 border border-white/20"><div class="font-display font-bold text-xl" id="dashAvg">—</div><div class="text-[10px] font-black opacity-60">AVG SCORE</div></div>
+        <div class="bg-white/10 rounded-2xl p-3 border border-white/20"><div class="font-display font-bold text-xl" id="dashStreak">1🔥</div><div class="text-[10px] font-black opacity-60">STREAK</div></div>
+      </div>
+    </div>
+    <div class="card-pop bg-white rounded-[2rem] p-7">
+      <div class="font-display font-bold text-xl mb-1">Lessons per subject</div><div class="text-sm font-bold text-ink/50 mb-3">Your library at a glance</div>
+      <div class="h-[240px]"><canvas id="subjectChart"></canvas></div>
+    </div>
+    <div class="card-pop bg-white rounded-[2rem] p-7">
+      <div class="font-display font-bold text-xl mb-3">Badges</div>
+      <div class="grid grid-cols-2 gap-3" id="badgeGrid"></div>
+      <button onclick="clearProgress()" class="mt-4 w-full text-xs font-black text-ink/40 hover:text-red-500 underline">Reset my progress</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-ink text-white border-t-4 border-ink pt-10 pb-6">
+  <div class="max-w-7xl mx-auto px-4 md:px-6 grid md:grid-cols-4 gap-8">
+    <div class="md:col-span-2"><div class="font-display font-bold text-3xl">LearnPop<span class="text-popPink">!</span> Academy</div><p class="font-bold text-white/60 mt-2 max-w-md">Built for curious minds. Add lessons anytime, animate everything, quiz everywhere. Made with love for math, history & beyond.</p>
+      <div class="mt-4 flex gap-2"><input id="newsInput" placeholder="Parent email for weekly quests" class="flex-1 bg-white/10 border border-white/20 rounded-full px-5 py-3 font-bold outline-none placeholder:text-white/40"><button onclick="subscribe()" class="btn-pop bg-popYellow text-ink rounded-full px-6 py-3 text-sm">JOIN</button></div></div>
+    <div><div class="font-black text-sm tracking-widest text-white/40 mb-3">EXPLORE</div><div class="space-y-2 font-bold"><a href="#library" class="block hover:text-popYellow">Lesson Library</a><a href="#lab" class="block hover:text-popYellow">Animation Lab</a><a href="#quizzes" class="block hover:text-popYellow">Quiz Arena</a><a href="#studio" class="block hover:text-popYellow">Teacher Studio</a></div></div>
+    <div><div class="font-black text-sm tracking-widest text-white/40 mb-3">LEVELS</div><div class="space-y-2 font-bold"><div>Explorer • Grades 1–3</div><div>Voyager • Grades 4–6</div><div>Pioneer • Grades 7–9</div><div>Titan • Grades 10–12</div></div></div>
+  </div>
+  <div class="max-w-7xl mx-auto px-4 md:px-6 mt-8 pt-5 border-t border-white/10 flex flex-wrap justify-between gap-2 text-xs font-bold text-white/40"><span>© 2026 LearnPop! Academy — Learn it. Pop it. Own it.</span><span>Videos • Animations • Files • Quizzes • Infinite curiosity</span></div>
+</footer>
+
+<!-- FAB -->
+<button onclick="document.getElementById('studio').scrollIntoView({behavior:'smooth'})" class="fixed bottom-5 right-5 z-40 btn-pop w-14 h-14 rounded-full bg-gradient-to-br from-popPink to-popOrange text-white text-2xl font-black">+</button>
+
+<!-- LESSON MODAL -->
+<div id="lessonModal" class="hidden fixed inset-0 z-[80] modal-bg p-3 md:p-6 overflow-y-auto">
+  <div class="max-w-4xl mx-auto bg-[#FFFDF5] rounded-[2rem] border-[3px] border-ink shadow-brutLg overflow-hidden my-4">
+    <div id="viewerHead" class="p-6 md:p-8 text-white border-b-[3px] border-ink relative overflow-hidden"></div>
+    <div class="flex gap-2 p-4 overflow-x-auto bg-white border-b-[3px] border-ink" id="viewerTabs"></div>
+    <div class="p-5 md:p-8" id="viewerBody"></div>
+  </div>
+</div>
+
+<!-- QUIZ MODAL -->
+<div id="quizModal" class="hidden fixed inset-0 z-[90] modal-bg p-3 md:p-6 overflow-y-auto">
+  <div class="max-w-2xl mx-auto bg-white rounded-[2rem] border-[3px] border-ink shadow-brutLg overflow-hidden my-6">
+    <div class="bg-ink text-white px-6 py-5 flex items-center justify-between">
+      <div><div class="text-[11px] font-black tracking-widest text-popYellow" id="quizKicker">QUIZ TIME</div><div class="font-display font-bold text-xl" id="quizTitle">Quiz</div></div>
+      <button onclick="closeQuiz()" class="w-10 h-10 rounded-full bg-white/10 border border-white/20 font-black hover:bg-popPink">✕</button>
+    </div>
+    <div class="px-6 pt-4"><div class="flex justify-between text-xs font-black mb-1"><span id="quizProgText">Q 1/5</span><span id="quizTimerText">⏱ 30s</span></div>
+      <div class="h-3 rounded-full border-2 border-ink bg-[#FFF3D6] overflow-hidden"><div id="quizProgBar" class="h-full bg-gradient-to-r from-popPink to-popYellow" style="width:10%"></div></div>
+      <div class="h-2 rounded-full bg-ink/10 mt-2 overflow-hidden"><div id="quizTimerBar" class="h-full bg-popCyan timer-bar" style="width:100%"></div></div>
+    </div>
+    <div class="p-6" id="quizBody"></div>
+  </div>
+</div>
+
+<div id="toasts" class="fixed bottom-5 left-5 z-[100] space-y-2 max-w-[320px]"></div>
+
+<script>
+/* ============ DATA ============ */
+const LEVELS = [
+  {id:'Explorer', grades:'Grades 1–3', age:'Ages 6–8', desc:'Big pictures, playful basics, first adventures.', grad:'from-lime-300 to-emerald-500', icon:'M12 2l2.5 6.5L21 11l-6.5 2.5L12 20l-2.5-6.5L3 11l6.5-2.5z'},
+  {id:'Voyager', grades:'Grades 4–6', age:'Ages 9–11', desc:'Deeper dives, experiments & time travel.', grad:'from-cyan-300 to-blue-600', icon:'M12 2a10 10 0 100 20 10 10 0 000-20zm0 4l2 5 5 2-5 2-2 5-2-5-5-2 5-2z'},
+  {id:'Pioneer', grades:'Grades 7–9', age:'Ages 12–14', desc:'Real problem-solving & epic stories.', grad:'from-amber-300 to-orange-600', icon:'M3 20h18L12 4 3 20zm6-6l3-5 3 5H9z'},
+  {id:'Titan', grades:'Grades 10–12', age:'Ages 15–18', desc:'Master-level thinking, exam power.', grad:'from-fuchsia-400 to-purple-700', icon:'M5 3h14v4l-3 4 3 4v4H5v-4l3-4-3-4V3zm4 6l3 3 3-3M8 17h8'},
+];
+const SUBJECTS = ['Math','History','Science','English','Geography','Art'];
+const SUBJ_GRAD = {Math:'from-pink-500 to-orange-400',History:'from-amber-400 to-orange-600',Science:'from-cyan-400 to-blue-600',English:'from-violet-500 to-fuchsia-500',Geography:'from-emerald-400 to-teal-600',Art:'from-yellow-300 to-pink-500'};
+const SUBJ_ICON = {Math:'∑',History:'◷',Science:'✦',English:'✎',Geography:'◍',Art:'♡'};
+
+function seedLessons(){
+  return [
+    {id:'l1',title:'Fractions Are Fun!',level:'Explorer',subject:'Math',type:'Video',duration:'12 min',difficulty:'Easy',color:'#FF2E93',img:'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&q=80',videoUrl:'https://www.youtube.com/embed/n0FZhQ_GkKw',description:'Halves, thirds & quarters come alive with pizza, cake and popping pie animations!',content:'What is a fraction?\nA fraction is a part of a whole — like 1 slice of 4 pizza slices = 1/4.\nNumerator = how many pieces you have.\nDenominator = how many pieces total.\nHalves are bigger than quarters!\nTip: Draw it! Seeing beats memorizing.',files:[{name:'Fractions-Worksheet.pdf',size:'—',url:''}],links:'Practice game | https://www.mathplayground.com',createdAt:Date.now()-86400000*6,views:24312,quiz:[
+      {q:'What does the denominator tell us?',opts:['How many pieces you have','How many pieces total','How tasty the pizza is','How many friends you have'],answer:1,explain:'Denominator = total equal parts in the whole.'},
+      {q:'Which is bigger: 1/2 or 1/4?',opts:['1/4','They are equal','1/2','Impossible to tell'],answer:2,explain:'Half a pizza is more than a quarter!'},
+      {q:'3/4 as a percentage is...',opts:['34%','75%','43%','25%'],answer:1,explain:'3 ÷ 4 = 0.75 = 75%.'},
+      {q:'If you eat 2 of 8 slices, what fraction is left?',opts:['2/8','6/8','8/2','1/2'],answer:1,explain:'8 − 2 = 6 slices left → 6/8.'}]},
+    {id:'l2',title:'Pyramids Mystery: Ancient Egypt',level:'Voyager',subject:'History',type:'Animation',duration:'18 min',difficulty:'Medium',color:'#FF6B00',img:'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800&q=80',videoUrl:'https://www.youtube.com/embed/XttSZ8Y0_7k',description:'Travel 4,500 years back! How did Egyptians build giants without machines?',content:'Egypt around 2600 BC: pharaohs, Nile floods, scribes.\nPyramids = giant tombs for pharaohs.\nWorkers dragged 2.3M stone blocks on sleds + ramps.\nHieroglyphs told their stories.\nThe Sphinx guards Giza to this day.',files:[],links:'',createdAt:Date.now()-86400000*5,views:18204,quiz:[
+      {q:'Pyramids were built mainly as...',opts:['Shopping malls','Tombs for pharaohs','Schools','Granaries'],answer:1,explain:'They protected the pharaoh for the afterlife.'},
+      {q:'About how many blocks in the Great Pyramid?',opts:['2,300','23,000','2.3 million','230'],answer:2,explain:'Roughly 2.3 million limestone blocks!'},
+      {q:'Which river made Egypt fertile?',opts:['Amazon','Nile','Danube','Mississippi'],answer:1,explain:'The Nile flooded yearly, leaving rich soil.'}]},
+    {id:'l3',title:'Multiplication Pop Party',level:'Voyager',subject:'Math',type:'Interactive',duration:'15 min',difficulty:'Medium',color:'#7C3AED',img:'https://images.unsplash.com/photo-1596495577886-d920f1fb7238?w=800&q=80',videoUrl:'',description:'Pop bubbles, smash times-tables and become a multiplication ninja!',content:'Multiplication = fast adding: 4×3 = 4+4+4.\nTrick: ×9 fingers, ×5 ends in 0 or 5.\n×11 pattern: 11×4=44.\nPlay Sprint below until tables feel automatic.',files:[],links:'',createdAt:Date.now()-86400000*4,views:15210,quiz:[
+      {q:'7 × 8 = ?',opts:['54','56','63','48'],answer:1,explain:'7×8 = 56. Remember 5-6-7-8!'},
+      {q:'9 × 6 = ?',opts:['45','52','54','63'],answer:2,explain:'9×6 = 54.'},
+      {q:'Which equals 4 × 3?',opts:['4+3','4+4+4','3+3','12+12'],answer:1,explain:'4 three times!'},
+      {q:'12 × 5 = ?',opts:['55','60','50','65'],answer:1,explain:'10×5=50 plus 2×5=10 → 60.'}]},
+    {id:'l4',title:'Tales of Ancient Rome',level:'Explorer',subject:'History',type:'Video',duration:'14 min',difficulty:'Easy',color:'#EAB308',img:'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&q=80',videoUrl:'https://www.youtube.com/embed/46ZXl-V4qwY',description:'Gladiators, emperors &ẹ aqueducts — the city that built an empire!',content:'Rome started as a tiny village ~753 BC.\nRomans built roads, aqueducts, the Colosseum.\nGladiators fought for crowds of 50,000!\nJulius Caesar + Augustus shaped history.\nRoman ideas still live in laws & languages.',files:[],links:'',createdAt:Date.now()-86400000*3,views:12980,quiz:[
+      {q:'The Colosseum was used for...',opts:['Swimming','Gladiator games','Farming','Sleeping'],answer:1,explain:'Up to 50,000 Romans watched shows there.'},
+      {q:'Aqueducts carried...',opts:['Soldiers','Water','Messages','Fire'],answer:1,explain:'Stone channels brought fresh water for miles.'},
+      {q:'Rome began around...',opts:['2024 AD','753 BC','1492 AD','3000 BC'],answer:1,explain:'Legend says Romulus founded Rome in 753 BC.'}]},
+    {id:'l5',title:'Pythagoras in Motion',level:'Pioneer',subject:'Math',type:'Animation',duration:'20 min',difficulty:'Hard',color:'#00B8D4',img:'https://images.unsplash.com/photo-1635372722656-389f87a941b7?w=800&q=80',videoUrl:'https://www.youtube.com/embed/AA6RfgP-AHU',description:'Watch a² + b² = c² dance! Drag triangle corners and see the proof.',content:'Right triangle: one 90° corner.\nSides: a, b (legs) and c (hypotenuse, longest).\nTheorem: a² + b² = c².\nExample: 3-4-5 → 9+16=25.\nUsed in maps, games, buildings & space!',files:[],links:'',createdAt:Date.now()-86400000*2,views:9840,quiz:[
+      {q:'In a²+b²=c², c is...',opts:['Shortest side','The right angle','The longest side (hypotenuse)','The area'],answer:2,explain:'Hypotenuse sits opposite the right angle.'},
+      {q:'If a=3, b=4, c=?',opts:['5','7','12','25'],answer:0,explain:'9+16=25, √25=5.'},
+      {q:'Which triple is Pythagorean?',opts:['2,3,4','5,12,13','4,5,6','1,2,3'],answer:1,explain:'25+144=169 = 13².'}]},
+    {id:'l6',title:'Algebra: Solve for X',level:'Titan',subject:'Math',type:'Video',duration:'22 min',difficulty:'Hard',color:'#FF2E93',img:'https://images.unsplash.com/photo-1635372722656-389f87a941b7?w=800&q=80',videoUrl:'https://www.youtube.com/embed/NybHckSEQBI',description:'X marks the spot! Balance equations like a detective with superpowers.',content:'Equation = balanced scale: do same to both sides.\n2x + 3 = 11 → subtract 3 → 2x=8 → x=4.\nCheck by plugging back!\nNegative? Flip signs carefully.\nWord problems: name the unknown x first.',files:[],links:'',createdAt:Date.now()-86400000*1,views:8740,quiz:[
+      {q:'Solve: x + 7 = 15',opts:['x=7','x=8','x=22','x=15'],answer:1,explain:'15 − 7 = 8.'},
+      {q:'Solve: 3x = 27',opts:['x=6','x=9','x=24','x=81'],answer:1,explain:'27 ÷ 3 = 9.'},
+      {q:'Solve: 2x − 4 = 10',opts:['x=5','x=6','x=7','x=14'],answer:2,explain:'2x=14 → x=7.'}]},
+    {id:'l7',title:'WWII: Stories That Shaped Our World',level:'Pioneer',subject:'History',type:'Document',duration:'25 min',difficulty:'Medium',color:'#44403C',img:'https://images.unsplash.com/photo-1461360370896-922624d12aa1?w=800&q=80',videoUrl:'',description:'Maps, timelines & human stories from 1939–1945 — understand, remember, learn.',content:'1939–1945: global conflict starting in Europe.\nCauses: treaties, crisis, expansion.\nKey turns: 1941, D-Day 1944, 1945 end.\nCivilians + soldiers: many brave stories.\nLesson: peace needs courage & cooperation.',files:[{name:'WWII-Timeline.pdf',size:'—',url:''}],links:'',createdAt:Date.now()-86400000*7,views:7600,quiz:[
+      {q:'WWII in Europe ended in...',opts:['1918','1939','1945','1950'],answer:2,explain:'Germany surrendered May 1945.'},
+      {q:'D-Day landings happened in...',opts:['1944 in Normandy','1941 in Africa','1939 in Poland','1945 in Berlin'],answer:0,explain:'June 6, 1944 — Operation Overlord.'},
+      {q:'The war began with invasion of...',opts:['France','Poland','Britain','Spain'],answer:1,explain:'Germany invaded Poland, Sept 1939.'}]},
+    {id:'l8',title:'Solar System Safari',level:'Voyager',subject:'Science',type:'Animation',duration:'16 min',difficulty:'Easy',color:'#2563EB',img:'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800&q=80',videoUrl:'https://www.youtube.com/embed/libKVRa01L8',description:'Zoom past 8 planets! Why is Mars red? Where would you float?',content:'Star at center: the Sun (99.8% of mass!).\nRocky: Mercury Venus Earth Mars.\nGiants: Jupiter Saturn Uranus Neptune.\nEarth = only known life. Mars = rusty red.\nGravity holds orbits — speed it up in the Lab!',files:[],links:'',createdAt:Date.now()-86400000*8,views:19800,quiz:[
+      {q:'Which planet is called the Red Planet?',opts:['Venus','Mars','Jupiter','Mercury'],answer:1,explain:'Iron rust makes Mars red.'},
+      {q:'Largest planet?',opts:['Saturn','Earth','Jupiter','Neptune'],answer:2,explain:'Jupiter fits 1,300 Earths!'},
+      {q:'How many planets?',opts:['7','8','9','10'],answer:1,explain:'8 since Pluto became dwarf planet.'}]},
+    {id:'l9',title:'Story Sparks: Write Your Adventure',level:'Explorer',subject:'English',type:'Interactive',duration:'13 min',difficulty:'Easy',color:'#A855F7',img:'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&q=80',videoUrl:'',description:'Flashcards, silly prompts & story dice — never stare at a blank page again!',content:'Every story = Character + Problem + Adventure.\nSpark 1: A kid who finds a talking map.\nSpark 2: A dragon afraid of the dark.\nSteps: Who? Where? Uh-oh? Fix it? The end!\nWrite 5 sentences today = author power.',files:[],links:'',createdAt:Date.now()-86400000*9,views:6500,quiz:[
+      {q:'Every story needs...',opts:['Only a dragon','Character + Problem + Adventure','100 pages','Perfect spelling first'],answer:1,explain:'Those three spark any tale!'},
+      {q:'What comes first when stuck?',opts:['Cry','Pick a silly prompt','Erase everything','Copy a friend'],answer:1,explain:'Prompts unlock imagination.'},
+      {q:'Best first-draft rule?',opts:['Be perfect','Write fast, fix later','Never write','Only use long words'],answer:1,explain:'Get ideas down, polish after.'}]},
+    {id:'l10',title:'Map Masters: Continents & Oceans',level:'Explorer',subject:'Geography',type:'Interactive',duration:'11 min',difficulty:'Easy',color:'#059669',img:'https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80',videoUrl:'',description:'Spin the globe! 7 continents, 5 oceans, zero getting lost.',content:'7 continents: Asia Africa N.America S.America Antarctica Europe Australia.\n5 oceans: Pacific Atlantic Indian Southern Arctic.\nPacific = biggest ocean.\nAsia = biggest continent.\nCompass: Never Eat Soggy Waffles (N-E-S-W).',files:[],links:'',createdAt:Date.now()-86400000*10,views:5400,quiz:[
+      {q:'Largest ocean?',opts:['Atlantic','Indian','Pacific','Arctic'],answer:2,explain:'Pacific covers 1/3 of Earth!'},
+      {q:'How many continents?',opts:['5','6','7','8'],answer:2,explain:'Seven — sing the song!'},
+      {q:'Largest continent?',opts:['Africa','Asia','Europe','Antarctica'],answer:1,explain:'Asia holds 60% of people.'}]},
+    {id:'l11',title:'Photosynthesis Power',level:'Pioneer',subject:'Science',type:'Video',duration:'17 min',difficulty:'Medium',color:'#16A34A',img:'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=800&q=80',videoUrl:'https://www.youtube.com/embed/8ILzKri08kk',description:'How leaves cook sunlight into sugar — the recipe feeding the planet.',content:'Ingredients: sunlight + water + CO₂.\nKitchen: chloroplasts (chlorophyll = green).\nRecipe: 6CO₂ + 6H₂O → sugar + oxygen.\nYou breathe the leftover oxygen!\nMore light = faster cooking (to a point).',files:[],links:'',createdAt:Date.now()-86400000*11,views:7200,quiz:[
+      {q:'Photosynthesis happens in...',opts:['Roots','Chloroplasts','Flowers','Bark'],answer:1,explain:'Chlorophyll traps sunlight there.'},
+      {q:'Plants take in...',opts:['Oxygen','Carbon dioxide','Sugar','Sand'],answer:1,explain:'CO₂ from air + water from roots.'},
+      {q:'Plants release...',opts:['Carbon dioxide','Oxygen','Smoke','Salt'],answer:1,explain:'The oxygen we breathe!'}]},
+    {id:'l12',title:'Civil Rights Heroes',level:'Titan',subject:'History',type:'Quiz Pack',duration:'19 min',difficulty:'Hard',color:'#7C3AED',img:'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&q=80',videoUrl:'',description:'Speeches, marches & courage — voices that bent history toward justice.',content:'1950s–60s USA: segregation challenged.\nMontgomery Bus Boycott (1955) sparked movement.\nMarch on Washington (1963): I Have a Dream.\nCivil Rights Act 1964, Voting Rights 1965.\nHeroes: King, Parks, Lewis + millions more.',files:[],links:'',createdAt:Date.now()-86400000*12,views:4800,quiz:[
+      {q:'Montgomery Bus Boycott began after the arrest of...',opts:['MLK','Rosa Parks','John Lewis','Malcolm X'],answer:1,explain:'1955 — Parks refused to give up her seat.'},
+      {q:'March on Washington year?',opts:['1955','1963','1968','1970'],answer:1,explain:'August 1963, 250,000 marched.'},
+      {q:'Civil Rights Act signed?',opts:['1954','1964','1974','1984'],answer:1,explain:'Outlawed segregation in 1964.'}]}
+  ];
+}
+
+/* ============ STATE ============ */
+let lessons = [];
+let progress = {completed:[],scores:{},xp:0,streak:1,lastVisit:null};
+let filters = {search:'',subject:'All',level:'All',type:'All',sort:'new'};
+let pendingFiles = [];
+let chart = null;
+let activeLessonId = null, activeTab='learn';
+let quizState = null, quizTimerInt=null;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s??'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const fmtViews = v => v>=1000 ? (v/1000).toFixed(1)+'K' : v;
+
+function saveLessons(){ localStorage.setItem('learnpop_lessons_v1', JSON.stringify(lessons)); }
+function saveProgress(){ localStorage.setItem('learnpop_progress_v1', JSON.stringify(progress)); }
+function loadAll(){
+  try{ const l = JSON.parse(localStorage.getItem('learnpop_lessons_v1')); lessons = (l && l.length)? l : seedLessons(); }catch(e){ lessons = seedLessons(); }
+  try{ const p = JSON.parse(localStorage.getItem('learnpop_progress_v1')); if(p) progress = Object.assign(progress,p); }catch(e){}
+  saveLessons();
+  // streak
+  const today = new Date().toDateString();
+  if(progress.lastVisit !== today){
+    const y = new Date(Date.now()-86400000).toDateString();
+    progress.streak = (progress.lastVisit===y) ? (progress.streak||1)+1 : (progress.lastVisit? progress.streak||1 : 1);
+    progress.lastVisit = today; saveProgress();
+  }
+}
+function featuredId(){ return lessons[0]?.id; }
+
+/* ============ TOAST / XP / CONFETTI ============ */
+function toast(msg, color='#141221'){
+  const d = document.createElement('div');
+  d.className='toast bg-white border-[3px] rounded-2xl p-3 flex items-center gap-3 shadow-brutSm';
+  d.style.borderColor=color;
+  d.innerHTML=`<div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-white" style="background:${color}">✦</div><div class="font-extrabold text-sm">${msg}</div>`;
+  $('toasts').appendChild(d);
+  setTimeout(()=>{d.style.opacity='0';d.style.transform='translateY(10px)';setTimeout(()=>d.remove(),300)},3200);
+}
+function boom(big=false){
+  confetti({particleCount:big?160:70, spread:big?100:70, origin:{y:.6}, colors:['#FF2E93','#FF6B00','#FFC700','#7C3AED','#00E5FF','#B6FF00']});
+  if(big) setTimeout(()=>confetti({particleCount:100,angle:60,spread:60,origin:{x:0}}),250), setTimeout(()=>confetti({particleCount:100,angle:120,spread:60,origin:{x:1}}),400);
+}
+function xpTitle(xp){ const l=Math.floor(xp/300)+1; const names=['Sprout','Explorer','Achiever','Scholar','Master','Genius','Legend']; return {lvl:l,name:names[Math.min(l-1,names.length-1)]}; }
+function addXP(n, reason){
+  const before = xpTitle(progress.xp).lvl;
+  progress.xp += n; saveProgress(); updateXPUI();
+  toast(`+${n} XP — ${reason}`, '#FF2E93');
+  if(xpTitle(progress.xp).lvl>before){ boom(true); toast(`LEVEL UP! You are now ${xpTitle(progress.xp).name}!`, '#7C3AED'); }
+}
+function updateXPUI(){
+  const t = xpTitle(progress.xp);
+  $('navXP').textContent = progress.xp+' XP'; $('navLevel').textContent=t.lvl; $('navTitle').textContent=t.name;
+  $('xpLevelName').textContent=`Level ${t.lvl} • ${t.name}`; $('xpTotal').textContent=progress.xp+' XP';
+  const into = progress.xp%300; $('xpBar').style.width=(into/300*100)+'%';
+  $('xpNext').textContent=(300-into)+' XP to Level '+(t.lvl+1);
+  $('avatarLetter').textContent=t.name[0];
+  $('statStreak').textContent=progress.streak+'🔥'; $('dashStreak').textContent=progress.streak+'🔥';
+  const done = progress.completed.length; $('dashDone').textContent=done;
+  const vals = Object.values(progress.scores); $('dashAvg').textContent = vals.length? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length)+'%' : '—';
+  renderBadges();
+}
+function renderBadges(){
+  const done=progress.completed.length, vals=Object.values(progress.scores), best=Math.max(0,...vals);
+  const b=[
+    {n:'First Steps',d:'Finish 1 lesson',ok:done>=1,c:'#B6FF00'},
+    {n:'Quiz Rookie',d:'Score 70%+ once',ok:best>=70,c:'#00E5FF'},
+    {n:'Bookworm',d:'Finish 5 lessons',ok:done>=5,c:'#FFC700'},
+    {n:'Perfectionist',d:'Score 100%',ok:vals.includes(100),c:'#FF2E93'},
+    {n:'Scholar',d:'Earn 500 XP',ok:progress.xp>=500,c:'#7C3AED'},
+    {n:'Streak Star',d:'2-day streak',ok:progress.streak>=2,c:'#FF6B00'},
+  ];
+  $('badgeGrid').innerHTML=b.map(x=>`<div class="rounded-2xl border-[3px] border-ink p-3 text-center ${x.ok?'':'opacity-40 grayscale'}" style="background:${x.ok?x.c:'#eee'}"><div class="font-display font-bold text-lg">${x.ok?'★':'☆'}</div><div class="font-black text-sm">${x.n}</div><div class="text-[11px] font-bold opacity-70">${x.d}</div></div>`).join('');
+}
+
+/* ============ MARQUEE / LEVELS / PILLS ============ */
+function initMarquee(){
+  const items=['MATH ROCKS ∑','HISTORY TIME TRAVEL ◷','SCIENCE IS MAGIC ✦','WRITE YOUR STORY ✎','EXPLORE THE WORLD ◍','CREATE & PLAY ♡','+ ADD LESSONS ANYTIME ✚'];
+  const html = items.map(t=>`<span class="flex items-center gap-3 whitespace-nowrap"><span class="w-2 h-2 rounded-full bg-popPink inline-block"></span>${t}</span>`).join('<span class="mx-4 text-popYellow">✦</span>');
+  $('subjectMarquee').innerHTML = `<div class="flex gap-6 pr-6">${html}</div><div class="flex gap-6 pr-6">${html}</div>`;
+  const m=['NEW: Animation Lab is LIVE','2,400+ learners popping daily','Teachers: add lessons anytime','Quizzes give XP + badges','Math • History • Science • English'];
+  const mh=m.map(t=>`<span>✦ ${t}</span>`).join('');
+  $('marqueeA').innerHTML=mh; $('marqueeB').innerHTML=mh;
+}
+function renderLevels(){
+  $('levelGrid').innerHTML = LEVELS.map(l=>{
+    const count = lessons.filter(x=>x.level===l.id).length;
+    return `<button onclick="setLevel('${l.id}')" class="card-pop text-left rounded-[1.8rem] overflow-hidden bg-white">
+      <div class="h-28 bg-gradient-to-br ${l.grad} border-b-[3px] border-ink flex items-center justify-center relative">
+        <svg width="54" height="54" viewBox="0 0 24 24" fill="white" stroke="#141221" stroke-width="1.2"><path d="${l.icon}"/></svg>
+        <span class="absolute top-3 right-3 sticker bg-white rounded-full px-3 py-1 text-xs font-black">${count} LESSONS</span>
+      </div>
+      <div class="p-5"><div class="font-display font-bold text-2xl">${l.id}</div><div class="text-xs font-black text-popPink">${l.grades.toUpperCase()} • ${l.age.toUpperCase()}</div><p class="font-bold text-ink/60 text-sm mt-1">${l.desc}</p>
+      <div class="mt-3 inline-block bg-ink text-white rounded-full px-4 py-1.5 text-xs font-black">EXPLORE →</div></div>
+    </button>`;
+  }).join('');
+  $('levelPills').innerHTML = ['All',...LEVELS.map(l=>l.id)].map(l=>`<button onclick="setPill('level','${l}')" data-l="${l}" class="lpill tab-btn rounded-full px-4 py-1.5 text-xs font-black ${filters.level===l?'tab-active bg-white':'bg-white'}">${l==='All'?'✦ ALL LEVELS':l}</button>`).join('');
+}
+function renderSubjectPills(){
+  $('subjectPills').innerHTML = ['All',...SUBJECTS].map(s=>`<button onclick="setPill('subject','${s}')" data-s="${s}" class="spill tab-btn rounded-full px-4 py-1.5 text-xs font-black ${filters.subject===s?'tab-active bg-white':'bg-white'}">${s==='All'?'✦ ALL SUBJECTS':SUBJ_ICON[s]+' '+s}</button>`).join('');
+}
+function setPill(k,v){ filters[k]=v; renderSubjectPills(); renderLevelsPillsOnly(); renderLessons(); }
+function renderLevelsPillsOnly(){ $('levelPills').innerHTML = ['All',...LEVELS.map(l=>l.id)].map(l=>`<button onclick="setPill('level','${l}')" class="tab-btn rounded-full px-4 py-1.5 text-xs font-black ${filters.level===l?'tab-active bg-white':'bg-white'}">${l==='All'?'✦ ALL LEVELS':l}</button>`).join(''); }
+function setLevel(l){ filters.level=l; renderLevelsPillsOnly(); renderLessons(); document.getElementById('library').scrollIntoView({behavior:'smooth'}); }
+function resetFilters(){ filters={search:'',subject:'All',level:'All',type:'All',sort:'new'}; $('searchInput').value='';$('typeFilter').value='All';$('sortFilter').value='new'; renderSubjectPills(); renderLevelsPillsOnly(); renderLessons(); }
+function heroGo(){ filters.search=$('heroSearch').value; $('searchInput').value=filters.search; renderLessons(); document.getElementById('library').scrollIntoView({behavior:'smooth'}); }
+
+/* ============ LESSON GRID ============ */
+function toEmbed(url){
+  if(!url) return '';
+  url=url.trim();
+  if(url.includes('youtube.com/watch')){ const m=url.match(/v=([^&]+)/); if(m) return 'https://www.youtube.com/embed/'+m[1]; }
+  if(url.includes('youtu.be/')){ const id=url.split('youtu.be/')[1].split(/[?&#]/)[0]; return 'https://www.youtube.com/embed/'+id; }
+  return url;
+}
+function renderLessons(){
+  let list = lessons.filter(l=>{
+    const s=(l.title+' '+l.description+' '+l.subject+' '+l.level).toLowerCase();
+    return (!filters.search || s.includes(filters.search.toLowerCase())) && (filters.subject==='All'||l.subject===filters.subject) && (filters.level==='All'||l.level===filters.level) && (filters.type==='All'||l.type===filters.type);
+  });
+  if(filters.sort==='az') list.sort((a,b)=>a.title.localeCompare(b.title));
+  else if(filters.sort==='quiz') list.sort((a,b)=>(b.quiz?.length||0)-(a.quiz?.length||0));
+  else if(filters.sort==='short') list.sort((a,b)=>parseInt(a.duration)-parseInt(b.duration));
+  else list.sort((a,b)=>b.createdAt-a.createdAt);
+  $('resultCount').textContent = `${list.length} lesson${list.length!==1?'s':''} found • ${progress.completed.length} completed`;
+  $('statLessons').textContent=lessons.length;
+  $('statQuizzes').textContent=lessons.reduce((a,l)=>a+(l.quiz?.length||0),0);
+  if(!list.length){ $('lessonGrid').innerHTML=`<div class="col-span-full bg-white/10 border-[3px] border-dashed border-white/40 rounded-[2rem] p-12 text-center"><div class="font-display font-bold text-3xl">No lessons here... yet!</div><p class="font-bold text-white/60 mt-2">Be the hero — add the first one in the Studio.</p><a href="#studio" class="btn-pop inline-block mt-4 bg-popYellow text-ink rounded-full px-6 py-3 text-sm">+ CREATE LESSON</a></div>`; return; }
+  $('lessonGrid').innerHTML = list.map(l=>{
+    const done = progress.completed.includes(l.id);
+    const best = progress.scores[l.id];
+    const grad = SUBJ_GRAD[l.subject]||'from-pink-500 to-orange-400';
+    return `<article class="card-pop bg-white text-ink rounded-[1.8rem] overflow-hidden flex flex-col">
+      <div class="relative">
+        <img src="${esc(l.img||'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80')}" onerror="this.src='https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80'" class="lesson-img" alt="">
+        <div class="absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent"></div>
+        <div class="absolute top-3 left-3 flex gap-2">
+          <span class="sticker bg-gradient-to-r ${grad} text-white rounded-full px-3 py-1 text-[11px] font-black">${SUBJ_ICON[l.subject]||'✦'} ${esc(l.subject).toUpperCase()}</span>
+          <span class="sticker bg-white rounded-full px-3 py-1 text-[11px] font-black">${esc(l.type).toUpperCase()}</span>
+        </div>
+        <span class="absolute top-3 right-3 sticker bg-ink text-white rounded-full px-3 py-1 text-[11px] font-black">${esc(l.level).toUpperCase()}</span>
+        <button onclick="openLesson('${l.id}')" class="absolute inset-0 m-auto w-16 h-16 rounded-full bg-white border-[3px] border-ink shadow-brut flex items-center justify-center hover:scale-110 transition"><svg width="24" height="24" viewBox="0 0 24 24" fill="#141221"><path d="M8 5v14l11-7z"/></svg></button>
+        <div class="absolute bottom-3 left-4 right-4 flex justify-between items-center text-white text-xs font-black"><span>⏱ ${esc(l.duration||'10 min')} • ${esc(l.difficulty||'Easy')}</span><span>▶ ${fmtViews(l.views||1200)}</span></div>
+        ${done?'<div class="absolute bottom-12 right-3 sticker bg-popLime rounded-full px-3 py-1 text-[11px] font-black rotate-[-4deg]">✓ DONE</div>':''}
+      </div>
+      <div class="p-5 flex-1 flex flex-col">
+        <h3 class="font-display font-bold text-xl leading-tight">${esc(l.title)}</h3>
+        <p class="font-bold text-ink/60 text-sm mt-1 line-clamp-2">${esc(l.description)}</p>
+        <div class="flex items-center gap-2 mt-3 text-xs font-black">
+          <span class="bg-[#FFF3D6] border-2 border-ink rounded-full px-3 py-1">✎ ${(l.quiz?.length||0)} QUIZ Qs</span>
+          ${best!==undefined?`<span class="rounded-full px-3 py-1 border-2 border-ink" style="background:${best>=70?'#B6FF00':'#FFC700'}">BEST ${best}%</span>`:`<span class="bg-ink text-white rounded-full px-3 py-1">+50 XP</span>`}
+          ${l.files?.length?`<span class="bg-popCyan rounded-full px-3 py-1 border-2 border-ink">📎 ${l.files.length}</span>`:''}
+        </div>
+        <div class="grid grid-cols-2 gap-2 mt-4">
+          <button onclick="openLesson('${l.id}')" class="btn-pop bg-ink text-white rounded-full py-2.5 text-xs">STUDY NOW</button>
+          <button onclick="startLessonQuiz('${l.id}')" class="btn-pop bg-popYellow rounded-full py-2.5 text-xs">TAKE QUIZ →</button>
+        </div>
+        <div class="flex gap-1 mt-2">
+          <button onclick="editLesson('${l.id}')" class="flex-1 text-[11px] font-black py-1.5 rounded-lg hover:bg-black/5">✎ EDIT</button>
+          <button onclick="duplicateLesson('${l.id}')" class="flex-1 text-[11px] font-black py-1.5 rounded-lg hover:bg-black/5">⧉ DUPLICATE</button>
+          <button onclick="deleteLesson('${l.id}')" class="flex-1 text-[11px] font-black py-1.5 rounded-lg hover:bg-red-100 hover:text-red-600">🗑 DELETE</button>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+  renderQuizGrid(); renderManage(); renderChart();
+}
+
+/* ============ QUIZ GRID ============ */
+function renderQuizGrid(){
+  const cards = lessons.map(l=>{
+    const best=progress.scores[l.id];
+    return `<div class="card-pop bg-white rounded-[1.6rem] p-5 flex items-center gap-4">
+      <div class="w-14 h-14 shrink-0 rounded-2xl bg-gradient-to-br ${SUBJ_GRAD[l.subject]} border-[3px] border-ink flex items-center justify-center font-display font-bold text-2xl text-white">${SUBJ_ICON[l.subject]}</div>
+      <div class="flex-1 min-w-0"><div class="font-display font-bold leading-tight truncate">${esc(l.title)}</div><div class="text-xs font-black opacity-50">${esc(l.subject)} • ${esc(l.level)} • ${l.quiz?.length||0} Qs ${best!==undefined?'• BEST '+best+'%':''}</div></div>
+      <button onclick="startLessonQuiz('${l.id}')" class="btn-pop bg-ink text-white rounded-full px-4 py-2 text-xs whitespace-nowrap">PLAY →</button>
+    </div>`;
+  }).join('');
+  $('quizGrid').innerHTML = `
+    <div class="card-pop rounded-[1.6rem] p-6 bg-ink text-white sm:col-span-2 lg:col-span-1 flex flex-col justify-between">
+      <div><div class="sticker inline-block bg-popPink rounded-full px-3 py-1 text-[11px] font-black">DAILY CHALLENGE</div>
+      <div class="font-display font-bold text-2xl mt-2">Ultimate Mix</div><p class="text-sm font-bold text-white/60">10 random questions from everything. Biggest XP!</p></div>
+      <button onclick="startMixed('all','Ultimate Mix')" class="btn-pop mt-4 bg-popLime text-ink rounded-full py-3 text-sm">START MIX →</button>
+    </div>`+cards;
+}
+
+/* ============ VIEWER ============ */
+function openLesson(id){
+  const l = lessons.find(x=>x.id===id); if(!l) return;
+  activeLessonId=id; activeTab='learn';
+  l.views=(l.views||0)+1; saveLessons();
+  const grad = SUBJ_GRAD[l.subject]||'from-pink-500 to-orange-400';
+  $('viewerHead').className=`p-6 md:p-8 text-white border-b-[3px] border-ink relative overflow-hidden bg-gradient-to-br ${grad}`;
+  $('viewerHead').innerHTML=`
+    <div class="absolute w-72 h-72 bg-white/20 rounded-full -right-16 -top-16 blur-2xl"></div>
+    <button onclick="closeLesson()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-ink text-white font-black border-2 border-white/40 hover:bg-popPink z-10">✕</button>
+    <div class="flex gap-2 flex-wrap relative">
+      <span class="sticker bg-white text-ink rounded-full px-3 py-1 text-[11px] font-black">${esc(l.subject).toUpperCase()}</span>
+      <span class="sticker bg-ink text-white rounded-full px-3 py-1 text-[11px] font-black">${esc(l.level).toUpperCase()}</span>
+      <span class="sticker bg-white/20 border-white text-white rounded-full px-3 py-1 text-[11px] font-black border-2">${esc(l.type).toUpperCase()} • ⏱ ${esc(l.duration||'10 min')}</span>
+    </div>
+    <h2 class="font-display font-bold text-3xl md:text-4xl mt-3 drop-shadow relative">${esc(l.title)}</h2>
+    <p class="font-bold text-white/90 mt-1 relative">${esc(l.description)}</p>`;
+  renderViewerTabs(); renderViewerBody();
+  $('lessonModal').classList.remove('hidden'); document.body.style.overflow='hidden';
+}
+function closeLesson(){ $('lessonModal').classList.add('hidden'); document.body.style.overflow=''; }
+function renderViewerTabs(){
+  const tabs=[['learn','📖 LEARN'],['animate','✦ ANIMATION'],['files','📎 FILES'],['quiz','⚡ QUIZ']];
+  $('viewerTabs').innerHTML=tabs.map(([k,label])=>`<button onclick="setTab('${k}')" class="tab-btn whitespace-nowrap rounded-full px-5 py-2 text-xs font-black ${activeTab===k?'tab-active':'bg-[#FFF3D6]'}">${label}</button>`).join('');
+}
+function setTab(t){ activeTab=t; renderViewerTabs(); renderViewerBody(); }
+function renderViewerBody(){
+  const l = lessons.find(x=>x.id===activeLessonId); if(!l) return;
+  const B=$('viewerBody');
+  if(activeTab==='learn'){
+    const emb = toEmbed(l.videoUrl);
+    let media='';
+    if(emb && emb.includes('youtube')) media=`<div class="rounded-2xl overflow-hidden border-[3px] border-ink shadow-brutSm aspect-video bg-ink"><iframe src="${esc(emb)}" class="w-full h-full" allowfullscreen frameborder="0"></iframe></div>`;
+    else if(emb) media=`<div class="rounded-2xl overflow-hidden border-[3px] border-ink shadow-brutSm bg-ink"><video src="${esc(emb)}" controls class="w-full aspect-video"></video></div>`;
+    else media=`<div class="rounded-2xl border-[3px] border-ink overflow-hidden relative"><img src="${esc(l.img)}" class="w-full h-64 object-cover"><div class="absolute inset-0 bg-gradient-to-t from-ink/70 to-transparent flex items-end p-5"><span class="text-white font-display font-bold text-xl">Interactive lesson — jump to the Animation tab!</span></div></div>`;
+    const points = (l.content||'').split('\n').filter(x=>x.trim());
+    B.innerHTML=`${media}
+      <div class="mt-5 grid md:grid-cols-3 gap-4">
+        <div class="md:col-span-2 bg-white border-[3px] border-ink rounded-2xl p-5">
+          <div class="font-display font-bold text-xl mb-2">Key ideas</div>
+          <div class="space-y-2">${points.map((p,i)=>`<div class="flex gap-3 items-start bg-[#FFF8EC] border-2 border-ink/10 rounded-xl p-3"><span class="w-7 h-7 shrink-0 rounded-lg bg-ink text-white font-black text-sm flex items-center justify-center">${i+1}</span><span class="font-bold text-[15px]">${esc(p)}</span></div>`).join('')||'<p class="font-bold text-ink/50">No content yet — edit in Studio.</p>'}</div>
+        </div>
+        <div class="space-y-3">
+          <div class="bg-ink text-white rounded-2xl p-5 text-center"><div class="font-display font-bold text-4xl text-popYellow">+50</div><div class="font-black text-sm">XP FOR COMPLETION</div>
+          <button onclick="completeLesson('${l.id}')" class="btn-pop mt-3 w-full ${progress.completed.includes(l.id)?'bg-popLime text-ink':'bg-popPink text-white'} rounded-full py-2.5 text-sm">${progress.completed.includes(l.id)?'✓ COMPLETED — TAP TO REPLAY':'MARK COMPLETE ✓'}</button></div>
+          <div class="bg-popLime border-[3px] border-ink rounded-2xl p-4 font-black text-sm">⚡ Quiz: ${l.quiz?.length||0} questions<br>🏆 Best: ${progress.scores[l.id]!==undefined?progress.scores[l.id]+'%':'not taken yet'}</div>
+          <button onclick="setTab('animate')" class="btn-pop w-full bg-popCyan rounded-full py-3 text-sm">OPEN ANIMATION →</button>
+        </div>
+      </div>`;
+  }
+  else if(activeTab==='animate'){ B.innerHTML = viewerAnimationHTML(l); initViewerAnimation(l); }
+  else if(activeTab==='files'){
+    const files=(l.files||[]).map(f=>`<div class="flex items-center gap-3 bg-white border-[3px] border-ink rounded-2xl p-3"><div class="w-11 h-11 rounded-xl bg-popYellow border-2 border-ink flex items-center justify-center font-black">📄</div><div class="flex-1"><div class="font-black text-sm">${esc(f.name)}</div><div class="text-xs font-bold opacity-50">${esc(f.size||'')}</div></div>${f.url?`<a href="${f.url}" download="${esc(f.name)}" class="btn-pop bg-ink text-white rounded-full px-4 py-1.5 text-xs">DOWNLOAD</a>`:`<span class="text-xs font-black opacity-40">meta only</span>`}</div>`).join('');
+    const links=(l.links||'').split('\n').filter(x=>x.includes('|')).map(x=>{const [n,u]=x.split('|');return `<a href="${esc(u.trim())}" target="_blank" class="block bg-white border-[3px] border-ink rounded-2xl p-3 font-black text-sm hover:bg-popYellow transition">🔗 ${esc(n.trim())} →</a>`}).join('');
+    B.innerHTML=`<div class="font-display font-bold text-2xl mb-3">Files & resources</div>
+      <div class="space-y-2">${files||'<div class="font-bold text-ink/50 bg-white border-2 border-dashed border-ink/20 rounded-2xl p-5 text-center">No attached files yet. Add some in the Studio!</div>'}${links}</div>
+      <div class="mt-4 bg-[#FFF3D6] border-[3px] border-ink rounded-2xl p-4 font-bold text-sm">💡 Teachers: open this lesson in <b>Studio → Manage → Edit</b> to attach PDFs, worksheets or slide decks anytime.</div>`;
+  }
+  else if(activeTab==='quiz'){
+    const best=progress.scores[l.id];
+    B.innerHTML=`<div class="text-center py-4">
+      <div class="inline-block sticker bg-popPink text-white rounded-full px-5 py-1.5 text-xs font-black rotate-[-2deg]">${l.quiz?.length||0} QUESTIONS • 30s EACH</div>
+      <div class="font-display font-bold text-4xl mt-3">Ready to pop?</div>
+      <p class="font-bold text-ink/60 mt-1">Score 70%+ to earn bonus XP. 100% = legendary + confetti rain.</p>
+      ${best!==undefined?`<div class="mt-3 inline-block bg-popLime border-[3px] border-ink rounded-full px-6 py-2 font-black">YOUR BEST: ${best}%</div>`:''}
+      <div class="mt-5 flex flex-col sm:flex-row gap-3 justify-center">
+        <button onclick="startLessonQuiz('${l.id}')" class="btn-pop bg-gradient-to-r from-popPink to-popOrange text-white rounded-full px-10 py-4">START QUIZ ⚡</button>
+        <button onclick="setTab('learn')" class="btn-pop bg-white rounded-full px-8 py-4 text-sm">REVIEW FIRST</button>
+      </div>
+      <div class="mt-6 text-left bg-white border-[3px] border-ink rounded-2xl p-4"><div class="font-black text-sm mb-2">WHAT'S INSIDE:</div>${(l.quiz||[]).map((q,i)=>`<div class="font-bold text-sm py-1.5 border-b border-ink/10">Q${i+1}. ${esc(q.q)}</div>`).join('')||'No questions yet.'}</div>
+    </div>`;
+  }
+}
+function viewerAnimationHTML(l){
+  if(l.subject==='Math') return `<div class="font-display font-bold text-2xl mb-1">Math in motion <span class="text-popPink">— drag me!</span></div><p class="font-bold text-ink/60 text-sm mb-4">Fractions + Pythagoras live together. This is how the brain remembers.</p>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="bg-white border-[3px] border-ink rounded-2xl p-4 text-center"><div class="font-black text-sm mb-2">PIE SLICER: <span id="vFracTxt" class="bg-popPink text-white px-2 rounded-lg">3/4</span></div><canvas id="vFrac" width="220" height="220" class="mx-auto"></canvas><input id="vFracR" type="range" min="1" max="8" value="6" class="range-pop mt-3"><div class="text-xs font-black opacity-50 mt-1">DRAG TO CHANGE FRACTION ( /8 )</div></div>
+      <div class="bg-ink text-white rounded-2xl p-4"><div class="font-black text-sm mb-2 text-popYellow">PYTHAGORAS TRIANGLE</div><canvas id="vPyth" width="300" height="200" class="w-full rounded-xl bg-white/10 border border-white/20"></canvas><div class="grid grid-cols-2 gap-2 mt-3"><div><label class="text-xs font-black">A = <span id="vA">3</span></label><input id="vAR" type="range" min="1" max="10" value="3" class="range-pop w-full"></div><div><label class="text-xs font-black">B = <span id="vB">4</span></label><input id="vBR" type="range" min="1" max="10" value="4" class="range-pop yellow w-full"></div></div><div id="vC" class="mt-2 bg-popLime text-ink rounded-xl p-2 text-center font-black">c = √(9+16) = 5.00</div></div>
+    </div>`;
+  if(l.subject==='History') return `<div class="font-display font-bold text-2xl mb-1">Time scrubber <span class="text-popOrange">— swipe history!</span></div><p class="font-bold text-ink/60 text-sm mb-4">Drag the timeline. Feel how far humans have come.</p>
+    <div class="bg-white border-[3px] border-ink rounded-2xl overflow-hidden"><img id="vTimeImg" src="https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800&q=80" class="w-full h-56 object-cover"><div class="p-5"><div id="vTimeYear" class="font-display font-bold text-3xl text-popOrange">2600 BC</div><div id="vTimeTitle" class="font-black">Pyramids Rise</div><p id="vTimeDesc" class="font-bold text-ink/60 text-sm">Giant tombs built without machines.</p><input id="vTimeR" type="range" min="0" max="7" value="0" class="range-pop yellow mt-4"></div></div>`;
+  if(l.subject==='Science') return `<div class="font-display font-bold text-2xl mb-1">Orbit simulator <span class="text-blue-600">— you're gravity!</span></div><p class="font-bold text-ink/60 text-sm mb-4">Speed up time and watch planets race.</p>
+    <div class="bg-ink rounded-2xl border-[3px] border-ink p-4"><canvas id="vOrbit" width="600" height="300" class="w-full rounded-xl"></canvas><div class="flex items-center gap-3 mt-3 text-white font-black text-sm"><span>SPEED</span><input id="vOrbitR" type="range" min="1" max="10" value="3" class="range-pop cyan flex-1"><button onclick="setTab('quiz')" class="btn-pop bg-popYellow text-ink rounded-full px-5 py-2 text-xs">QUIZ ME →</button></div></div>`;
+  return `<div class="font-display font-bold text-2xl mb-1">Word power flip <span class="text-popPurple">— tap cards!</span></div><p class="font-bold text-ink/60 text-sm mb-4">Active recall beats re-reading. Flip, guess, master.</p>
+    <div class="grid sm:grid-cols-3 gap-3" id="vFlash"></div>
+    <div class="mt-4 bg-ink text-white rounded-2xl p-5 text-center"><div class="font-black text-sm text-white/60">STORY DICE SAYS...</div><div class="font-display font-bold text-2xl mt-1" id="vDice">A dragon afraid of the dark</div><button onclick="rollDice()" class="btn-pop mt-3 bg-popPink text-white rounded-full px-6 py-2 text-sm">🎲 ROLL IDEA</button></div>`;
+}
+const TIME_EVENTS=[
+  {y:'2600 BC',t:'Pyramids Rise in Egypt',d:'Pharaohs build giant tombs that still stand today.',img:'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800&q=80'},
+  {y:'753 BC',t:'Rome is Founded',d:'A tiny village grows into a mighty empire.',img:'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&q=80'},
+  {y:'476 AD',t:'Fall of Rome',d:'Empires fall — new kingdoms rise from pieces.',img:'https://images.unsplash.com/photo-1461360370896-922624d12aa1?w=800&q=80'},
+  {y:'1492',t:'Oceans Crossed',d:'Explorers connect worlds — maps change forever.',img:'https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80'},
+  {y:'1776',t:'New Nations Born',d:'Ideas of freedom spark revolutions.',img:'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=800&q=80'},
+  {y:'1969',t:'Moon Landing',d:'Humans walk on the Moon. Giant leap!',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&q=80'},
+  {y:'1990s',t:'Internet Explodes',d:'The world wires together — knowledge for all.',img:'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80'},
+  {y:'NOW',t:'You Are History',d:'Every lesson you finish writes the future.',img:'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&q=80'},
+];
+function initViewerAnimation(l){
+  if(l.subject==='Math'){
+    const c=$('vFrac'); if(!c) return;
+    const draw=(n)=>{ const x=c.getContext('2d'); x.clearRect(0,0,220,220); for(let i=0;i<8;i++){ x.beginPath(); x.moveTo(110,110); x.arc(110,110,95,i*Math.PI/4,(i+1)*Math.PI/4); x.closePath(); x.fillStyle=i<n?'#FF2E93':'#fff'; x.fill(); x.lineWidth=3; x.strokeStyle='#141221'; x.stroke(); } $('vFracTxt').textContent=n+'/8'; };
+    $('vFracR').oninput=e=>draw(+e.target.value); draw(6);
+    const pc=$('vPyth'); const pd=()=>{ const a=+$('vAR').value,b=+$('vBR').value; $('vA').textContent=a;$('vB').textContent=b; const cc=Math.sqrt(a*a+b*b).toFixed(2); $('vC').textContent=`c = √(${a*a}+${b*b}) = ${cc}`; const x=pc.getContext('2d'); x.clearRect(0,0,300,200); const s=14; x.beginPath(); x.moveTo(40,160); x.lineTo(40,160-b*s); x.lineTo(40+a*s,160); x.closePath(); x.fillStyle='#00E5FF'; x.fill(); x.lineWidth=4; x.strokeStyle='#fff'; x.stroke(); x.fillStyle='#fff'; x.font='bold 14px Nunito'; x.fillText('a='+a,12,120); x.fillText('b='+b,90,185); x.fillText('c='+cc,120,110); };
+    $('vAR').oninput=pd; $('vBR').oninput=pd; pd();
+  } else if(l.subject==='History'){
+    const r=$('vTimeR'); if(!r) return;
+    r.oninput=e=>{ const ev=TIME_EVENTS[+e.target.value]; $('vTimeYear').textContent=ev.y; $('vTimeTitle').textContent=ev.t; $('vTimeDesc').textContent=ev.d; $('vTimeImg').src=ev.img; };
+  } else if(l.subject==='Science'){
+    const c=$('vOrbit'); if(!c) return; const x=c.getContext('2d'); let t=0;
+    (function anim(){ if(!document.body.contains(c)) return; t+= (+($('vOrbitR')?.value||3))/60; x.clearRect(0,0,600,300); x.fillStyle='#FFC700'; x.beginPath(); x.arc(300,150,22,0,7); x.fill(); x.lineWidth=3; x.strokeStyle='#fff'; x.stroke();
+      const pls=[['#9CA3AF',45,1.6],['#FBBF24',70,1.1],['#38BDF8',100,.8],['#F87171',130,.6],['#F59E0B',165,.4]];
+      pls.forEach(([col,r,sp],i)=>{ const a=t*sp+i; x.strokeStyle='rgba(255,255,255,.2)'; x.beginPath(); x.arc(300,150,r,0,7); x.stroke(); x.fillStyle=col; x.beginPath(); x.arc(300+Math.cos(a)*r,150+Math.sin(a)*r,i===3?7:5,0,7); x.fill(); }); requestAnimationFrame(anim); })();
+  } else {
+    const words=[['Hero','Main character who wants something'],['Quest','The adventure / problem to solve'],['Plot Twist','Surprise that changes everything']];
+    const f=$('vFlash'); if(f) f.innerHTML=words.map(([a,b])=>`<div class="flashcard cursor-pointer" onclick="this.classList.toggle('flipped')"><div class="flash-inner bg-white border-[3px] border-ink rounded-2xl h-40"><div class="flash-face p-4 flex flex-col items-center justify-center h-40"><div class="font-display font-bold text-2xl">${a}</div><div class="text-[11px] font-black opacity-50 mt-1">TAP TO FLIP</div></div><div class="flash-face flash-back bg-popYellow border-[3px] border-ink rounded-2xl p-4 flex items-center justify-center text-center font-bold text-sm">${b}</div></div></div>`).join('');
+  }
+}
+function rollDice(){ const ideas=['A dragon afraid of the dark','A kid who finds a talking map','A robot that loves pizza','A school on a flying whale','A time-traveling backpack','A cat that rules a planet']; $('vDice').textContent=ideas[Math.floor(Math.random()*ideas.length)]; }
+function completeLesson(id){
+  if(!progress.completed.includes(id)){ progress.completed.push(id); addXP(50,'lesson completed'); saveProgress(); updateXPUI(); boom(); }
+  renderLessons(); renderViewerBody();
+}
+
+/* ============ QUIZ ENGINE ============ */
+function shuffle(a){ return [...a].sort(()=>Math.random()-.5); }
+function startLessonQuiz(id){
+  const l=lessons.find(x=>x.id===id); if(!l||!l.quiz?.length){ toast('No quiz questions yet — add some in Studio!','#FF6B00'); return; }
+  startQuiz({title:l.title, kicker:`${l.subject.toUpperCase()} • ${l.level.toUpperCase()}`, questions:shuffle(l.quiz.map(q=>({...q,opts:shuffle(q.opts.map((o,i)=>({t:o,ok:i===q.answer}))),})).map(q=>({...q,answer:q.opts.findIndex(o=>o.ok)}))), lessonId:id});
+}
+function startMixed(subject,title){
+  let pool=[];
+  lessons.forEach(l=>{ if(subject==='all'||l.subject===subject) (l.quiz||[]).forEach(q=>pool.push({...q,from:l.title})); });
+  if(pool.length<3){ toast('Add more lessons to unlock mixed quizzes!','#7C3AED'); return; }
+  pool=shuffle(pool).slice(0,Math.min(10,pool.length)).map(q=>{
+    const mapped=q.opts.map((o,i)=>({t:o,ok:i===q.answer})); const sh=shuffle(mapped);
+    return {q:q.q+(q.from?'':'') ,opts:sh.map(o=>o.t),answer:sh.findIndex(o=>o.ok),explain:q.explain,from:q.from};
+  });
+  startQuiz({title:title,kicker:'MIXED ARENA • RANDOM',questions:pool,lessonId:null});
+}
+function startQuiz({title,kicker,questions,lessonId}){
+  $('lessonModal').classList.add('hidden');
+  quizState={title,kicker,questions,lessonId,idx:0,score:0,answers:[],locked:false,timeLeft:30};
+  $('quizTitle').textContent=title; $('quizKicker').textContent=kicker;
+  $('quizModal').classList.remove('hidden'); document.body.style.overflow='hidden';
+  renderQ();
+}
+function closeQuiz(){ clearInterval(quizTimerInt); $('quizModal').classList.add('hidden'); document.body.style.overflow=''; }
+function renderQ(){
+  clearInterval(quizTimerInt);
+  const qs=quizState.questions, i=quizState.idx, q=qs[i];
+  quizState.locked=false; quizState.timeLeft=30;
+  $('quizProgText').textContent=`Q ${i+1}/${qs.length} • SCORE ${quizState.score}`;
+  $('quizProgBar').style.width=((i)/qs.length*100)+'%';
+  $('quizBody').innerHTML=`
+    ${q.from?`<div class="text-[11px] font-black text-popPink mb-1">FROM: ${esc(q.from).toUpperCase()}</div>`:''}
+    <div class="font-display font-bold text-2xl leading-snug">${esc(q.q)}</div>
+    <div class="grid gap-2.5 mt-4" id="qOpts">${q.opts.map((o,oi)=>`<button onclick="answerQ(${oi})" data-oi="${oi}" class="quiz-opt rounded-2xl p-4 font-extrabold text-left flex items-center gap-3 bg-[#FFF8EC]"><span class="w-8 h-8 shrink-0 rounded-xl bg-ink text-white font-black flex items-center justify-center text-sm">${'ABCD'[oi]}</span>${esc(o)}</button>`).join('')}</div>
+    <div id="qExplain" class="hidden mt-3 rounded-2xl border-[3px] border-ink p-4 font-bold text-sm"></div>
+    <button id="qNext" onclick="nextQ()" class="hidden btn-pop w-full mt-3 bg-ink text-white rounded-full py-3 text-sm">${i+1===qs.length?'SEE RESULTS →':'NEXT QUESTION →'}</button>`;
+  updateTimerUI();
+  quizTimerInt=setInterval(()=>{ quizState.timeLeft--; updateTimerUI(); if(quizState.timeLeft<=0){ clearInterval(quizTimerInt); answerQ(-1,true);} },1000);
+}
+function updateTimerUI(){ $('quizTimerText').textContent=`⏱ ${quizState.timeLeft}s`; $('quizTimerBar').style.width=(quizState.timeLeft/30*100)+'%'; $('quizTimerBar').style.background=quizState.timeLeft<=10?'#FF2E93':'#00E5FF'; }
+function answerQ(oi,timeout=false){
+  if(quizState.locked) return; quizState.locked=true; clearInterval(quizTimerInt);
+  const q=quizState.questions[quizState.idx];
+  const correct = oi===q.answer;
+  if(correct) quizState.score++;
+  quizState.answers.push({q:q.q,pick:oi,correct:q.answer,ok:correct});
+  document.querySelectorAll('#qOpts .quiz-opt').forEach(b=>{
+    const idx=+b.dataset.oi; b.style.pointerEvents='none';
+    if(idx===q.answer) b.classList.add('correct');
+    else if(idx===oi) b.classList.add('wrong');
+    else b.style.opacity='.55';
+  });
+  const ex=$('qExplain'); ex.classList.remove('hidden');
+  ex.style.background=correct?'#B6FF00':'#FFE1E1';
+  ex.innerHTML=(timeout&&oi===-1?'⏰ Time up! ':'')+(correct?'✓ Correct! ':'✕ Not quite. ')+esc(q.explain||'');
+  $('qNext').classList.remove('hidden');
+  $('quizProgText').textContent=`Q ${quizState.idx+1}/${quizState.questions.length} • SCORE ${quizState.score}`;
+}
+function nextQ(){
+  if(quizState.idx+1>=quizState.questions.length) endQuiz();
+  else { quizState.idx++; $('quizProgBar').style.width=(quizState.idx/quizState.questions.length*100)+'%'; renderQ(); }
+}
+function endQuiz(){
+  clearInterval(quizTimerInt);
+  const total=quizState.questions.length, sc=quizState.score, pct=Math.round(sc/total*100);
+  $('quizProgBar').style.width='100%'; $('quizTimerText').textContent='DONE';
+  let xp = sc*10 + (pct===100?50:(pct>=70?20:0));
+  if(quizState.lessonId){ const prev=progress.scores[quizState.lessonId]||0; if(pct>prev) progress.scores[quizState.lessonId]=pct; }
+  progress.xp+=xp; saveProgress(); updateXPUI(); renderLessons();
+  if(pct>=70) boom(pct===100);
+  const emoji = pct===100?'🏆 LEGENDARY!':pct>=70?'🎉 GREAT JOB!':pct>=40?'💪 KEEP GOING!':'🌱 GOOD TRY!';
+  $('quizBody').innerHTML=`
+    <div class="text-center">
+      <div class="w-24 h-24 mx-auto rounded-full border-4 border-ink flex items-center justify-center font-display font-bold text-3xl" style="background:conic-gradient(#B6FF00 ${pct}%, #eee ${pct}% )">${pct}%</div>
+      <div class="font-display font-bold text-3xl mt-3">${emoji}</div>
+      <div class="font-black text-ink/60">${sc}/${total} correct • +${xp} XP earned</div>
+      <div class="mt-4 text-left space-y-2 max-h-56 overflow-y-auto">${quizState.answers.map((a,i)=>`<div class="rounded-xl border-2 ${a.ok?'border-green-500 bg-green-50':'border-red-300 bg-red-50'} p-3 text-sm font-bold"><span class="${a.ok?'text-green-600':'text-red-500'}">${a.ok?'✓':'✕'}</span> Q${i+1}. ${esc(a.q)}</div>`).join('')}</div>
+      <div class="grid grid-cols-2 gap-2 mt-4">
+        <button onclick="closeQuiz()" class="btn-pop bg-white rounded-full py-3 text-sm">BACK TO VAULT</button>
+        <button onclick="retryQuiz()" class="btn-pop bg-ink text-white rounded-full py-3 text-sm">RETRY →</button>
+      </div>
+    </div>`;
+  toast(`Quiz finished: ${pct}% (+${xp} XP)`, pct>=70?'#16A34A':'#FF6B00');
+}
+function retryQuiz(){ const q=quizState; startQuiz({title:q.title,kicker:q.kicker,questions:shuffle(q.questions.map(x=>({...x}))),lessonId:q.lessonId}); }
+
+/* ============ STUDIO ============ */
+function addQuizBlock(data={}){
+  const w=document.createElement('div');
+  w.className='qblock bg-white text-ink rounded-2xl p-4 border-[3px] border-white';
+  w.innerHTML=`
+    <div class="flex justify-between items-center mb-2"><span class="font-black text-xs bg-ink text-white rounded-full px-3 py-1">QUESTION</span><button type="button" onclick="this.closest('.qblock').remove()" class="text-xs font-black text-red-500 hover:underline">REMOVE ✕</button></div>
+    <input class="qb-q input-pop !py-2 text-sm mb-2" placeholder="Question..." value="${esc(data.q||'')}">
+    <div class="grid grid-cols-2 gap-2">
+      ${[0,1,2,3].map(i=>`<input class="qb-o input-pop !py-2 text-sm" placeholder="Option ${'ABCD'[i]}..." value="${esc(data.opts?.[i]||'')}">`).join('')}
+    </div>
+    <div class="grid grid-cols-2 gap-2 mt-2">
+      <select class="qb-a input-pop !py-2 text-sm">${[0,1,2,3].map(i=>`<option value="${i}" ${data.answer===i?'selected':''}>Correct: ${'ABCD'[i]}</option>`).join('')}</select>
+      <input class="qb-e input-pop !py-2 text-sm" placeholder="Why? (explanation)" value="${esc(data.explain||'')}">
+    </div>`;
+  $('quizBuilder').appendChild(w);
+}
+function collectQuiz(){
+  return [...document.querySelectorAll('.qblock')].map(b=>{
+    const q=b.querySelector('.qb-q').value.trim();
+    const opts=[...b.querySelectorAll('.qb-o')].map(i=>i.value.trim());
+    if(!q||opts.some(o=>!o)) return null;
+    return {q,opts,answer:+b.querySelector('.qb-a').value,explain:b.querySelector('.qb-e').value.trim()};
+  }).filter(Boolean);
+}
+function resetForm(){ $('lessonForm').reset(); $('fId').value=''; $('quizBuilder').innerHTML=''; pendingFiles=[]; $('fileList').innerHTML=''; addQuizBlock(); addQuizBlock(); updatePreview(); }
+function updatePreview(){
+  const t=$('fTitle').value||'Your Awesome Lesson';
+  const s=$('fSubject').value||'Math', l=$('fLevel').value||'Explorer', ty=$('fType').value||'Video';
+  const img=$('fImg').value||'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80';
+  const grad=SUBJ_GRAD[s]||'from-pink-500 to-orange-400';
+  const qn=document.querySelectorAll('.qblock').length;
+  $('livePreview').innerHTML=`<img src="${esc(img)}" onerror="this.src='https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80'" class="w-full h-44 object-cover"><div class="p-5 text-ink"><div class="flex gap-2"><span class="sticker bg-gradient-to-r ${grad} text-white rounded-full px-3 py-1 text-[11px] font-black">${s.toUpperCase()}</span><span class="sticker bg-[#FFF3D6] rounded-full px-3 py-1 text-[11px] font-black">${l.toUpperCase()}</span></div><div class="font-display font-bold text-xl mt-2">${esc(t)}</div><div class="text-sm font-bold opacity-60">${esc($('fDesc').value||'Your juicy description appears here...')}</div><div class="mt-3 flex gap-2 text-xs font-black"><span class="bg-ink text-white rounded-full px-3 py-1">${ty}</span><span class="bg-popLime border-2 border-ink rounded-full px-3 py-1">${qn} QUIZ Qs</span></div></div>`;
+}
+function editLesson(id){
+  const l=lessons.find(x=>x.id===id); if(!l) return;
+  $('fId').value=l.id; $('fTitle').value=l.title; $('fLevel').value=l.level; $('fSubject').value=l.subject; $('fType').value=l.type;
+  $('fDuration').value=l.duration||''; $('fDifficulty').value=l.difficulty||'Easy'; $('fColor').value=l.color||'#FF2E93';
+  $('fVideo').value=l.videoUrl||''; $('fImg').value=l.img||''; $('fDesc').value=l.description||''; $('fContent').value=l.content||''; $('fLinks').value=l.links||'';
+  $('quizBuilder').innerHTML=''; (l.quiz||[]).forEach(q=>addQuizBlock(q)); if(!(l.quiz||[]).length) addQuizBlock();
+  pendingFiles=[...(l.files||[])]; renderPendingFiles(); updatePreview();
+  document.getElementById('studio').scrollIntoView({behavior:'smooth'});
+  toast('Editing: '+l.title,'#7C3AED');
+}
+function duplicateLesson(id){ const l=lessons.find(x=>x.id===id); if(!l) return; const c=JSON.parse(JSON.stringify(l)); c.id='l'+Date.now(); c.title=l.title+' (Copy)'; c.createdAt=Date.now(); c.views=0; lessons.unshift(c); saveLessons(); renderLessons(); renderLevels(); toast('Duplicated!','#00B8D4'); }
+function deleteLesson(id){ const l=lessons.find(x=>x.id===id); if(!confirm('Delete "'+l.title+'"?')) return; lessons=lessons.filter(x=>x.id!==id); saveLessons(); renderLessons(); renderLevels(); toast('Lesson deleted','#FF5A5A'); }
+function renderPendingFiles(){ $('fileList').innerHTML=pendingFiles.map((f,i)=>`<div class="flex justify-between bg-[#FFF3D6] border-2 border-ink/10 rounded-lg px-3 py-1.5"><span>📄 ${esc(f.name)} <span class="opacity-50">(${esc(f.size||'')})</span></span><button type="button" onclick="pendingFiles.splice(${i},1);renderPendingFiles()" class="font-black text-red-500">✕</button></div>`).join(''); }
+function renderManage(){
+  $('manageBody').innerHTML=lessons.map(l=>`<tr class="border-t border-ink/10">
+    <td class="p-3"><div class="font-black">${esc(l.title)}</div><div class="text-xs opacity-50">${esc(l.type)} • ${esc(l.duration||'')}</div></td>
+    <td class="p-3"><span class="bg-[#FFF3D6] border border-ink rounded-full px-2 py-0.5 text-xs font-black">${l.level}</span></td>
+    <td class="p-3 text-xs font-black">${l.subject}</td><td class="p-3 text-xs font-black">${l.quiz?.length||0} Qs</td>
+    <td class="p-3 text-right whitespace-nowrap"><button onclick="openLesson('${l.id}')" class="text-xs font-black bg-ink text-white rounded-full px-3 py-1">VIEW</button> <button onclick="editLesson('${l.id}')" class="text-xs font-black bg-popYellow border border-ink rounded-full px-3 py-1">EDIT</button> <button onclick="deleteLesson('${l.id}')" class="text-xs font-black bg-red-100 text-red-600 rounded-full px-3 py-1">DEL</button></td></tr>`).join('');
+}
+function exportData(){ const blob=new Blob([JSON.stringify(lessons,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='learnpop-lessons.json'; a.click(); toast('Lessons exported!','#16A34A'); }
+function resetDemo(){ if(!confirm('Reset to demo lessons? Your added lessons will be replaced.')) return; lessons=seedLessons(); saveLessons(); renderLessons(); renderLevels(); toast('Demo restored!','#7C3AED'); }
+function clearProgress(){ if(!confirm('Reset XP, badges & scores?')) return; progress={completed:[],scores:{},xp:0,streak:1,lastVisit:new Date().toDateString()}; saveProgress(); updateXPUI(); renderLessons(); }
+function subscribe(){ const v=$('newsInput').value; if(!v||!v.includes('@')){toast('Enter a valid email!','#FF5A5A');return;} $('newsInput').value=''; boom(); toast('Welcome aboard! Weekly quests incoming.','#16A34A'); }
+
+/* ============ LAB WIDGETS ============ */
+function drawFrac(){
+  const n=+$('numSlider').value, d=+$('denSlider').value;
+  $('numVal').textContent=n; $('denVal').textContent=d;
+  const c=$('fracCanvas'), x=c.getContext('2d'); x.clearRect(0,0,260,260);
+  for(let i=0;i<d;i++){ x.beginPath(); x.moveTo(130,130); x.arc(130,130,105,i*2*Math.PI/d,(i+1)*2*Math.PI/d); x.closePath();
+    const g=x.createLinearGradient(0,0,260,260); g.addColorStop(0,'#FF2E93'); g.addColorStop(1,'#FF6B00');
+    x.fillStyle=i<n?g:'#fff'; x.fill(); x.lineWidth=4; x.strokeStyle='#141221'; x.stroke(); }
+  x.fillStyle='#141221'; x.font='900 26px Fredoka'; x.textAlign='center'; x.fillText(n+'/'+d,130,140);
+  const pct=Math.round(n/d*100); $('fracLabel').textContent=`${n}/${d} = ${(n/d).toFixed(2)} = ${pct}%`; $('fracBar').style.width=pct+'%';
+}
+let waveT=0;
+function waveLoop(){
+  const c=$('waveCanvas'); if(!c) return;
+  const x=c.getContext('2d'); const f=+$('freqSlider').value, a=+$('ampSlider').value, s=+$('speedSlider').value;
+  waveT+=s/40; x.clearRect(0,0,520,220);
+  x.strokeStyle='rgba(255,255,255,.12)'; x.lineWidth=1;
+  for(let gx=0;gx<520;gx+=26){x.beginPath();x.moveTo(gx,0);x.lineTo(gx,220);x.stroke();} for(let gy=0;gy<220;gy+=26){x.beginPath();x.moveTo(0,gy);x.lineTo(520,gy);x.stroke();}
+  const grads=[['#FF2E93',0],['#FFC700',8],['#00E5FF',16]];
+  grads.forEach(([col,off])=>{ x.beginPath(); x.lineWidth=4; x.strokeStyle=col; x.shadowColor=col; x.shadowBlur=12;
+    for(let px=0;px<=520;px+=4){ const y=110+Math.sin(px/520*Math.PI*2*f+waveT+off)*a; px===0?x.moveTo(px,y):x.lineTo(px,y);} x.stroke(); x.shadowBlur=0; });
+  x.fillStyle='#fff'; x.font='900 13px Nunito'; x.fillText(`♪ freq ${f} • amp ${a}`,12,20);
+  requestAnimationFrame(waveLoop);
+}
+let timeIdx=0;
+function setTime(i){
+  timeIdx=(i+TIME_EVENTS.length)%TIME_EVENTS.length;
+  const ev=TIME_EVENTS[timeIdx];
+  $('timeYear').textContent=ev.y; $('timeTitle').textContent=ev.t; $('timeDesc').textContent=ev.d; $('timeImg').src=ev.img;
+  $('timeSlider').value=timeIdx;
+}
+function timeStep(d){ setTime(timeIdx+d); }
+/* Sprint */
+let sprint={score:0,time:60,int:null,a:0};
+function startSprint(){
+  $('sprintSetup').classList.add('hidden'); $('sprintEnd').classList.add('hidden'); $('sprintPlay').classList.remove('hidden');
+  sprint.score=0; sprint.time=60; $('sprintScore').textContent=0; $('sprintTime').textContent=60;
+  clearInterval(sprint.int); newSprintQ();
+  sprint.int=setInterval(()=>{ sprint.time--; $('sprintTime').textContent=sprint.time; if(sprint.time<=0){ clearInterval(sprint.int); $('sprintPlay').classList.add('hidden'); $('sprintEnd').classList.remove('hidden'); $('sprintFinal').textContent=sprint.score; addXP(sprint.score*2,'Math Sprint'); } },1000);
+}
+function newSprintQ(){
+  const a=Math.floor(Math.random()*9)+2, b=Math.floor(Math.random()*9)+2; sprint.a=a*b;
+  $('sprintQ').textContent=`${a} × ${b} = ?`;
+  const opts=new Set([sprint.a]); while(opts.size<4) opts.add(sprint.a+Math.floor(Math.random()*11)-5>0?sprint.a+Math.floor(Math.random()*11)-5:sprint.a+Math.floor(Math.random()*8)+1);
+  $('sprintOpts').innerHTML=shuffle([...opts]).map(v=>`<button onclick="sprintAns(${v},this)" class="bubble-pop bg-white text-ink border-[3px] border-white rounded-2xl py-3 font-display font-bold text-2xl">${v}</button>`).join('');
+}
+function sprintAns(v,btn){
+  if(v===sprint.a){ sprint.score++; $('sprintScore').textContent=sprint.score; btn.style.background='#B6FF00'; confetti({particleCount:15,spread:50,origin:{y:.7},scalar:.7}); }
+  else btn.style.background='#FF5A5A';
+  setTimeout(newSprintQ,280);
+}
+
+/* ============ CHART ============ */
+function renderChart(){
+  const ctx=$('subjectChart'); if(!ctx) return;
+  const counts=SUBJECTS.map(s=>lessons.filter(l=>l.subject===s).length);
+  if(chart) chart.destroy();
+  chart=new Chart(ctx,{type:'bar',data:{labels:SUBJECTS,datasets:[{data:counts,backgroundColor:['#FF2E93','#FF6B00','#00B8D4','#7C3AED','#059669','#EAB308'],borderColor:'#141221',borderWidth:2,borderRadius:12}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{weight:'bold'}},grid:{color:'#eee'}},x:{ticks:{font:{weight:'bold',size:11}}}}}});
+}
+
+/* ============ INIT ============ */
+document.addEventListener('DOMContentLoaded',()=>{
+  loadAll(); initMarquee(); renderLevels(); renderSubjectPills(); renderLessons(); updateXPUI();
+  addQuizBlock({q:'What is 2 + 2?',opts:['3','4','5','22'],answer:1,explain:'2+2 = 4. Easy pop!'});
+  addQuizBlock();
+  updatePreview();
+  // listeners
+  $('searchInput').addEventListener('input',e=>{filters.search=e.target.value;renderLessons();});
+  $('heroSearch').addEventListener('keydown',e=>{if(e.key==='Enter')heroGo();});
+  $('typeFilter').addEventListener('change',e=>{filters.type=e.target.value;renderLessons();});
+  $('sortFilter').addEventListener('change',e=>{filters.sort=e.target.value;renderLessons();});
+  ['fTitle','fDesc','fSubject','fLevel','fType','fImg'].forEach(id=>$(id).addEventListener('input',updatePreview));
+  $('numSlider').addEventListener('input',drawFrac); $('denSlider').addEventListener('input',drawFrac); drawFrac();
+  waveLoop();
+  $('timeSlider').addEventListener('input',e=>setTime(+e.target.value)); setTime(0);
+  $('menuBtn').onclick=()=>$('mobileMenu').classList.toggle('hidden');
+  document.querySelectorAll('#mobileMenu a').forEach(a=>a.onclick=()=>$('mobileMenu').classList.add('hidden'));
+  $('fFiles').addEventListener('change',e=>{
+    [...e.target.files].forEach(f=>{
+      if(f.size>2500000){toast('File too big (2.5MB max): '+f.name,'#FF5A5A');return;}
+      const r=new FileReader(); r.onload=()=>{ pendingFiles.push({name:f.name,size:(f.size/1024).toFixed(0)+' KB',url:r.result}); renderPendingFiles(); }; r.readAsDataURL(f);
+    }); e.target.value='';
+  });
+  $('importFile').addEventListener('change',e=>{
+    const f=e.target.files[0]; if(!f) return; const r=new FileReader();
+    r.onload=()=>{ try{ const d=JSON.parse(r.result); if(Array.isArray(d)){ lessons=d; saveLessons(); renderLessons(); renderLevels(); toast('Imported '+d.length+' lessons!','#16A34A'); } }catch(err){ toast('Invalid file!','#FF5A5A'); } }; r.readAsText(f);
+  });
+  $('lessonForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const title=$('fTitle').value.trim(), desc=$('fDesc').value.trim();
+    if(!title||!desc){toast('Title + description required!','#FF5A5A');return;}
+    const quiz=collectQuiz();
+    const data={title,level:$('fLevel').value,subject:$('fSubject').value,type:$('fType').value,duration:$('fDuration').value||'10 min',difficulty:$('fDifficulty').value,color:$('fColor').value,videoUrl:$('fVideo').value.trim(),img:$('fImg').value.trim()||'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80',description:desc,content:$('fContent').value.trim(),files:[...pendingFiles],links:$('fLinks').value.trim(),quiz,views:Math.floor(Math.random()*2000)+500};
+    const eid=$('fId').value;
+    if(eid){ const i=lessons.findIndex(x=>x.id===eid); lessons[i]={...lessons[i],...data}; toast('Lesson updated!','#16A34A'); }
+    else { lessons.unshift({id:'l'+Date.now(),createdAt:Date.now(),...data}); addXP(30,'creating a lesson'); boom(); toast('Lesson published to the Library!','#16A34A'); }
+    saveLessons(); renderLessons(); renderLevels(); resetForm();
+    document.getElementById('library').scrollIntoView({behavior:'smooth'});
+  });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeLesson();closeQuiz();} });
+  $('lessonModal').addEventListener('click',e=>{ if(e.target.id==='lessonModal') closeLesson(); });
+  $('quizModal').addEventListener('click',e=>{ if(e.target.id==='quizModal') closeQuiz(); });
+  // GSAP flair
+  if(window.gsap){ gsap.registerPlugin(ScrollTrigger);
+    gsap.utils.toArray('#levelGrid > *, #lessonGrid > *, #quizGrid > *').forEach((el,i)=>{ gsap.from(el,{y:40,opacity:0,duration:.6,delay:(i%4)*.06,ease:'back.out(1.4)',scrollTrigger:{trigger:el,start:'top 92%'}}); });
+  }
+  setTimeout(()=>{ toast('Welcome to LearnPop! Pick a level to start.','#7C3AED'); },800);
+});
+</script>
+</body>
+</html>
